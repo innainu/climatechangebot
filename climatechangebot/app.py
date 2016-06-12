@@ -2,6 +2,8 @@
 from flask import Flask, request
 from flask import jsonify
 
+from bot_interface.bot_interface import NotificationType, RecipientMethod, BotInterface
+
 import requests
 
 app = Flask(__name__)
@@ -14,6 +16,8 @@ FB_MESSAGING_URL = (
     "https://graph.facebook.com"
     "/v{0}/me/messages?access_token={1}"
 ).format(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
+
+bot = BotInterface(FB_MESSAGING_URL)
 
 # @app.route("/")
 # def index():
@@ -31,28 +35,17 @@ def webhook():
     if request.method == 'POST':
         messages = request.json
 
-        print(messages)
+        # print(messages)
         for entry in messages['entry']:
             for m in entry['messaging']:
                 if m.get('message') and m['message'].get('text'):
                     message = m['message']['text']
                     recipient_id = m['sender']['id']
 
-                    # Send back the text message
-                    payload = {
-                        'recipient': {
-                            'id': recipient_id
-                        },
-                        'message': {
-                            'text': message
-                        }
-                    }
+                    response = bot.send_text_message(recipient_id, message,
+                                    RecipientMethod.ID.value, NotificationType.REGULAR.value)
 
-                    status = requests.post(FB_MESSAGING_URL,
-                                           headers={"Content-Type": "application/json"},
-                                           json=payload)
-
-                    return success(status.status_code)
+                    return success(response.status_code)
                 else:
                     pass
 
