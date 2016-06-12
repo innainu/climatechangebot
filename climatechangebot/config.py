@@ -7,6 +7,8 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     FB_ACCESS_TOKEN = 'this-is-in-local-config'
+    FB_VERIFY_TOKEN = 'this-is-in-local-config'
+    FB_WEBHOOK_URL = 'this-is-in-local-config'
 
 
 class ProductionConfig(Config):
@@ -19,6 +21,7 @@ class StagingConfig(Config):
 
 
 class DevelopmentConfig(Config):
+    # ngrok http -host-header=rewrite 192.168.33.11:80
     DEVELOPMENT = True
     DEBUG = True
 
