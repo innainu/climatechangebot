@@ -10,7 +10,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "bento/ubuntu-14.04"
   config.vm.network :private_network, ip: VAGRANT_IP
   config.ssh.insert_key = false
-  config.vm.synced_folder ".", "/home/vagrant/climatechangebot", type: "nfs"
+  config.vm.synced_folder ".", "/home/vagrant/climatechangebot"
 
   # temporary hack until Vagrant 1.8.2:
   # https://github.com/mitchellh/vagrant/issues/6793
@@ -33,14 +33,14 @@ SCRIPT
   config.vm.provision "shell", inline: "printf 'localhost\n' | sudo tee /etc/ansible/hosts > /dev/null"
 
   config.vm.provider "vmware_fusion" do |vf|
-    vf.gui = true
+    vf.gui = false
     vf.vmx['displayname'] = "climatechangebot"
     vf.vmx["memsize"] = "1024"
     vf.vmx["numvcpus"] = "2"
   end
 
   config.vm.provider "virtualbox" do |vb|
-    vb.gui = true
+    vb.gui = false
     vb.name = "climatechangebot"
     vb.memory = "1024"
     vb.cpus = 2
