@@ -6,6 +6,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
+    FB_API_VERSION = 2.6
     FB_ACCESS_TOKEN = 'this-is-in-local-config'
     FB_VERIFY_TOKEN = 'this-is-in-local-config'
     FB_WEBHOOK_URL = 'this-is-in-local-config'
