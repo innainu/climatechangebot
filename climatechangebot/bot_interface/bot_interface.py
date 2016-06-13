@@ -30,11 +30,11 @@ class BotInterface(object):
         recipient_json = {recipient_method: recipient_info}
 
         message = {
-            'recipient': recipient_json,
-            'message': {
-                'text': message
+            "recipient": recipient_json,
+            "message": {
+                "text": message
             },
-            'notification_type': notification_type
+            "notification_type": notification_type
         }
 
         return self._send(message)

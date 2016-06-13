@@ -35,7 +35,7 @@ def webhook():
     if request.method == 'POST':
         messages = request.json
 
-        # print(messages)
+        print(messages)
         for entry in messages['entry']:
             for m in entry['messaging']:
                 if m.get('message') and m['message'].get('text'):
