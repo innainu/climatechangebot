@@ -19,9 +19,9 @@ FB_MESSAGING_URL = (
 
 bot = BotInterface(FB_MESSAGING_URL)
 
-# @app.route("/")
-# def index():
-#     return "Hello world from Climatechangebot!"
+@app.route("/")
+def index():
+    return success(status=200, message="Hello world from climatechangebot!")
 
 
 @app.route("/webhook/" + app.config['FB_WEBHOOK_URL'], methods=['GET', 'POST'])
@@ -30,7 +30,7 @@ def webhook():
         if (request.args.get("hub.verify_token") == app.config['FB_VERIFY_TOKEN']):
             return request.args.get("hub.challenge")
         else:
-            not_found()
+            return not_found(404)
 
     if request.method == 'POST':
         messages = request.json
@@ -53,18 +53,18 @@ def webhook():
 
 
 @app.errorhandler(404)
-def not_found(error=None):
-    message = {
-        'status': 404,
-        'message': 'Not Found: ' + request.url,
-    }
-    resp = jsonify(message)
-
-    return resp
+def not_found(error):
+    return jsonify(response={'success': False}, 
+        status=404, 
+        message="Not Found")
 
 
-def success(status=200):
-    return jsonify(response={'success': True}, status=status, mimetype="application/json")
+def success(status=200, message=''):
+    return jsonify(response={'success': True}, 
+        status=status, 
+        mimetype="application/json",
+        message=message)
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True)

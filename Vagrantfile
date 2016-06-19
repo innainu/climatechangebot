@@ -11,6 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :private_network, ip: VAGRANT_IP
   config.ssh.insert_key = false
   config.vm.synced_folder ".", "/home/vagrant/climatechangebot"
+  config.vm.network :forwarded_port, guest: 80, host: 4200
 
   # temporary hack until Vagrant 1.8.2:
   # https://github.com/mitchellh/vagrant/issues/6793

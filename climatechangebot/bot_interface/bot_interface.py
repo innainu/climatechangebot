@@ -5,6 +5,7 @@
 
 import json
 import requests
+import warnings
 
 from enum import Enum
 
@@ -20,12 +21,23 @@ class RecipientMethod(Enum):
     PHONE_NUMBER = "phone_number"
 
 
+class AttachmentType(Enum):
+    IMAGE = "image"
+    TEMPLATE = "template"
+    BUTTON = "button"
+
+
+class ButtonType(Enum):
+    WEBURL = "web_url"
+    POSTBACK = "postback"
+
+
 class BotInterface(object):
     def __init__(self, messaging_url):
         self.URL = messaging_url
 
-    def send_text_message(self, recipient_info, message,
-                          recipient_method="id", notification_type="REGULAR"):
+    def create_text_message(self, recipient_info, message,
+                          recipient_method, notification_type):
 
         recipient_json = {recipient_method: recipient_info}
 
@@ -37,10 +49,173 @@ class BotInterface(object):
             "notification_type": notification_type
         }
 
+        return message
+
+    def create_generic_payload_message(self, recipient_info,
+                          recipient_method=RecipientMethod.ID.value,
+                          notification_type=NotificationType.REGULAR.value,
+                          attachment={}):
+        message = self.create_text_message(recipient_info, None,
+                          recipient_method, notification_type)
+
+        message["message"] = {"attachment": attachment}
+
+        return message
+
+    #################### CREATE TEMPLATES ####################
+
+    def create_generic_template(self, template_elements=[]):
+        """
+            template_elements: Array of generic_template_elements
+        """
+        assert type(template_elements) == list
+        
+        attachment = {
+            "type": AttachmentType.TEMPLATE.value,
+            "payload": {
+                "template_type": "generic",
+                "elements": template_elements
+            }
+        }
+        return attachment
+
+    def create_image_template(self, image_url=""):
+        """
+            image_url: this should be the image URL
+        """
+        assert type(image_url) == str
+
+        attachment = {
+            "type": AttachmentType.IMAGE.value,
+            "payload": {
+                "url": image_url,
+            }
+        }
+        return attachment
+
+    def create_button_template(self, button_title="", buttons=[]):
+        assert type(button_title) == str
+        assert type(buttons) == list
+        assert len(buttons) > 0
+
+        attachment = {
+            "type": AttachmentType.TEMPLATE.value,
+            "payload": {
+                "template_type": "button",
+                "text": button_title,
+                "buttons": buttons
+            }
+        }
+
+        return attachment
+
+    #################### CREATE ELEMENTS/BUTTONS ####################
+
+    def create_generic_template_element(self, element_title="", element_item_url="",
+            element_image_url="", element_subtitle="", element_buttons=None):
+        """
+            element_title:      Some title
+            element_item_url:   URL opened when button is tapped
+            element_image_url:  Bubble Image
+            element_subtitle:   Bubble subtitle
+            element_buttons:    Array of buttons
+        """
+        element = {
+            "title": element_title,
+            "item_url": element_item_url,
+            "image_url": element_image_url,
+            "subtitle": element_subtitle
+        }
+        
+        if element_buttons:
+            assert type(element_buttons) == list
+            element['buttons'] = element_buttons
+
+        return element
+
+    def create_button(self, button_type=ButtonType.WEBURL.value,
+            title="", url="", payload=""):
+        assert type(title) == str
+        assert type(url) == str
+        assert type(payload) == str
+
+        button_dict = {}
+        if button_type == ButtonType.WEBURL.value:
+            assert len(url) > 0
+            button_dict = {
+                "type": ButtonType.WEBURL.value,
+                "title": title,
+                "url": url
+            }
+            return button_dict
+        elif button_type == ButtonType.POSTBACK.value:
+            assert len(payload) > 0
+            button_dict = {
+                "type": ButtonType.POSTBACK.value,
+                "title": title,
+                "payload": payload
+            }
+            return button_dict
+
+        warnings.warn("button_type of %s does not exist" %button_type, UserWarning)
+        return button_dict
+
+    #################### SEND MESSAGE FUNCTIONS ####################
+
+    def send_text_message(self, recipient_info, message,
+                          recipient_method=RecipientMethod.ID.value,
+                          notification_type=NotificationType.REGULAR.value):
+
+        message = self.create_text_message(recipient_info, message,
+                          recipient_method, notification_type)
+
+        return self._send(message)
+
+    def send_generic_payload_message(self, recipient_info,
+                          recipient_method=RecipientMethod.ID.value,
+                          notification_type=NotificationType.REGULAR.value,
+                          elements=[]):
+
+        attachment = self.create_generic_template(elements)
+
+        message = self.create_generic_payload_message(recipient_info,
+                          recipient_method, notification_type,
+                          attachment=attachment)
+
+        return self._send(message)
+
+    def send_image_payload_message(self, recipient_info,
+                          recipient_method=RecipientMethod.ID.value,
+                          notification_type=NotificationType.REGULAR.value,
+                          image_url=""):
+
+        attachment = self.create_image_template(image_url)
+
+        message = self.create_generic_payload_message(recipient_info,
+                          recipient_method, notification_type,
+                          attachment=attachment)
+
+        return self._send(message)
+
+    def send_button_payload_message(self, recipient_info,
+                          recipient_method=RecipientMethod.ID.value,
+                          notification_type=NotificationType.REGULAR.value,
+                          button_title="", buttons=[]):
+
+        attachment = self.create_button_template(button_title, buttons)
+
+        message = self.create_generic_payload_message(recipient_info,
+                          recipient_method, notification_type,
+                          attachment=attachment)
+
         return self._send(message)
 
     def _send(self, message_json):
         response = requests.post(self.URL, json=message_json,
                                  headers={"Content-Type": "application/json"})
+        
+        if response.status_code != 200:
+            raise Exception("The Facebook API did not like the message we tried to send them",
+                response.content)
 
         return response
