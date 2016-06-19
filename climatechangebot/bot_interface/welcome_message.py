@@ -1,6 +1,10 @@
 """
     Creates the welcome message for our bot by sending a request to Facebook.
 
+    Edit the message_json and run either:
+        $ python welcome_message.py --action create
+    OR
+        $ python welcome_message.py --action delete
 """
 
 import sys

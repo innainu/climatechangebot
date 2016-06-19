@@ -11,13 +11,7 @@ app = Flask(__name__)
 app.config.from_object("config.DevelopmentConfig")
 app.config.from_pyfile("local.cfg")
 
-
-FB_MESSAGING_URL = (
-    "https://graph.facebook.com"
-    "/v{0}/me/messages?access_token={1}"
-).format(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
-
-bot = BotInterface(FB_MESSAGING_URL)
+bot = BotInterface(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
 
 @app.route("/")
 def index():

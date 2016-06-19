@@ -15,20 +15,15 @@ from bot_interface.bot_interface import *
 config = ConfigParser.ConfigParser()
 config.read("local_test_config.cfg")
 
-FB_MESSAGING_URL = (
-    "https://graph.facebook.com"
-    "/v{0}/me/messages?access_token={1}"
-).format(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
-
 
 class TestBotInterface(unittest.TestCase):
 
     def testBotInterfaceInit(self):
-        bot = BotInterface(FB_MESSAGING_URL)
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
         self.assertIsNotNone(bot)
 
     def testSendTextMessage(self):
-        bot = BotInterface(FB_MESSAGING_URL)
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
         response = bot.send_text_message(config.get('SECRET', 'fb_test_recipient_id'),
             'Testing the bot interface testSendTextMessage', RecipientMethod.ID.value,
             NotificationType.REGULAR.value)
@@ -37,7 +32,7 @@ class TestBotInterface(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def testSendPayloadMessageImage(self):
-        bot = BotInterface(FB_MESSAGING_URL)
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
         response = bot.send_image_payload_message(config.get('SECRET', 'fb_test_recipient_id'),
             RecipientMethod.ID.value, NotificationType.REGULAR.value,
             image_url="https://media-cdn.tripadvisor.com/media/photo-s/04/17/78/62/peruvian-andes-adventures.jpg")
@@ -45,7 +40,7 @@ class TestBotInterface(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def testSendPayloadMessageGeneric(self):
-        bot = BotInterface(FB_MESSAGING_URL)
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
 
         elements = []
         
@@ -66,7 +61,7 @@ class TestBotInterface(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def testSendPayloadMessageButton(self):
-        bot = BotInterface(FB_MESSAGING_URL)
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
 
         # URL button
         buttons = []
@@ -87,4 +82,13 @@ class TestBotInterface(unittest.TestCase):
             RecipientMethod.ID.value, NotificationType.REGULAR.value,
             button_title="Test Button Title", buttons=buttons)
         self.assertEqual(response.status_code, 200)
+
+    def testGetUserProfileInfo(self):
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
+
+        response = bot.get_user_profile_info(config.get('SECRET', 'fb_test_recipient_id'))
+
+        self.assertIs(type(response), dict)
+        self.assertIn("first_name", response.keys())
+        self.assertIn("profile_pic", response.keys())
 

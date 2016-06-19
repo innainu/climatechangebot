@@ -33,8 +33,15 @@ class ButtonType(Enum):
 
 
 class BotInterface(object):
-    def __init__(self, messaging_url):
-        self.URL = messaging_url
+    def __init__(self, fb_api_version, fb_access_token):
+        self.FB_API_VERSION = fb_api_version
+        self.FB_ACCESS_TOKEN = fb_access_token
+
+        self.URL = (
+            "https://graph.facebook.com"
+            "/v{0}/me/messages?access_token={1}"
+        ).format(self.FB_API_VERSION, self.FB_ACCESS_TOKEN)
+
 
     def create_text_message(self, recipient_info, message,
                           recipient_method, notification_type):
@@ -219,3 +226,13 @@ class BotInterface(object):
                 response.content)
 
         return response
+
+    def get_user_profile_info(self, user_id):
+        url = (
+            "https://graph.facebook.com"
+            "/v{0}/{1}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token={2}"
+        ).format(self.FB_API_VERSION, user_id, self.FB_ACCESS_TOKEN)
+
+        response = requests.get(url, headers={"Content-Type": "application/json"})
+
+        return json.loads(response.content)
