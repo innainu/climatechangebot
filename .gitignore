@@ -5,3 +5,4 @@
 # Local config files with secret stuff
 local.cfg
 local_test_config.cfg
+.DS_Store
