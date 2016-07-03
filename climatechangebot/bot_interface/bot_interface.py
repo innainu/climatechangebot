@@ -42,9 +42,8 @@ class BotInterface(object):
             "/v{0}/me/messages?access_token={1}"
         ).format(self.FB_API_VERSION, self.FB_ACCESS_TOKEN)
 
-
     def create_text_message(self, recipient_info, message,
-                          recipient_method, notification_type):
+                            recipient_method, notification_type):
 
         recipient_json = {recipient_method: recipient_info}
 
@@ -59,11 +58,11 @@ class BotInterface(object):
         return message
 
     def create_generic_payload_message(self, recipient_info,
-                          recipient_method=RecipientMethod.ID.value,
-                          notification_type=NotificationType.REGULAR.value,
-                          attachment={}):
+                                       recipient_method=RecipientMethod.ID.value,
+                                       notification_type=NotificationType.REGULAR.value,
+                                       attachment={}):
         message = self.create_text_message(recipient_info, None,
-                          recipient_method, notification_type)
+                                           recipient_method, notification_type)
 
         message["message"] = {"attachment": attachment}
 
@@ -76,7 +75,7 @@ class BotInterface(object):
             template_elements: Array of generic_template_elements
         """
         assert type(template_elements) == list
-        
+
         attachment = {
             "type": AttachmentType.TEMPLATE.value,
             "payload": {
@@ -119,7 +118,8 @@ class BotInterface(object):
     #################### CREATE ELEMENTS/BUTTONS ####################
 
     def create_generic_template_element(self, element_title="", element_item_url="",
-            element_image_url="", element_subtitle="", element_buttons=None):
+                                        element_image_url="", element_subtitle="",
+                                        element_buttons=None):
         """
             element_title:      Some title
             element_item_url:   URL opened when button is tapped
@@ -133,7 +133,7 @@ class BotInterface(object):
             "image_url": element_image_url,
             "subtitle": element_subtitle
         }
-        
+
         if element_buttons:
             assert type(element_buttons) == list
             element['buttons'] = element_buttons
@@ -141,7 +141,7 @@ class BotInterface(object):
         return element
 
     def create_button(self, button_type=ButtonType.WEBURL.value,
-            title="", url="", payload=""):
+                      title="", url="", payload=""):
         assert type(title) == str
         assert type(url) == str
         assert type(payload) == str
@@ -164,7 +164,7 @@ class BotInterface(object):
             }
             return button_dict
 
-        warnings.warn("button_type of %s does not exist" %button_type, UserWarning)
+        warnings.warn("button_type of %s does not exist" % button_type, UserWarning)
         return button_dict
 
     #################### SEND MESSAGE FUNCTIONS ####################
@@ -174,56 +174,56 @@ class BotInterface(object):
                           notification_type=NotificationType.REGULAR.value):
 
         message = self.create_text_message(recipient_info, message,
-                          recipient_method, notification_type)
+                                           recipient_method, notification_type)
 
         return self._send(message)
 
     def send_generic_payload_message(self, recipient_info,
-                          recipient_method=RecipientMethod.ID.value,
-                          notification_type=NotificationType.REGULAR.value,
-                          elements=[]):
+                                     recipient_method=RecipientMethod.ID.value,
+                                     notification_type=NotificationType.REGULAR.value,
+                                     elements=[]):
 
         attachment = self.create_generic_template(elements)
 
         message = self.create_generic_payload_message(recipient_info,
-                          recipient_method, notification_type,
-                          attachment=attachment)
+                                                      recipient_method, notification_type,
+                                                      attachment=attachment)
 
         return self._send(message)
 
     def send_image_payload_message(self, recipient_info,
-                          recipient_method=RecipientMethod.ID.value,
-                          notification_type=NotificationType.REGULAR.value,
-                          image_url=""):
+                                   recipient_method=RecipientMethod.ID.value,
+                                   notification_type=NotificationType.REGULAR.value,
+                                   image_url=""):
 
         attachment = self.create_image_template(image_url)
 
         message = self.create_generic_payload_message(recipient_info,
-                          recipient_method, notification_type,
-                          attachment=attachment)
+                                                      recipient_method, notification_type,
+                                                      attachment=attachment)
 
         return self._send(message)
 
     def send_button_payload_message(self, recipient_info,
-                          recipient_method=RecipientMethod.ID.value,
-                          notification_type=NotificationType.REGULAR.value,
-                          button_title="", buttons=[]):
+                                    recipient_method=RecipientMethod.ID.value,
+                                    notification_type=NotificationType.REGULAR.value,
+                                    button_title="", buttons=[]):
 
         attachment = self.create_button_template(button_title, buttons)
 
         message = self.create_generic_payload_message(recipient_info,
-                          recipient_method, notification_type,
-                          attachment=attachment)
+                                                      recipient_method, notification_type,
+                                                      attachment=attachment)
 
         return self._send(message)
 
     def _send(self, message_json):
         response = requests.post(self.URL, json=message_json,
                                  headers={"Content-Type": "application/json"})
-        
+
         if response.status_code != 200:
             raise Exception("The Facebook API did not like the message we tried to send them",
-                response.content)
+                            response.content)
 
         return response
 

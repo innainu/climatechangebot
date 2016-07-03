@@ -30,46 +30,44 @@ FB_MESSAGING_URL = (
 
 
 def create_welcome_message():
-    
+
     message_json = {
-      "setting_type":"call_to_actions",
-      "thread_state":"new_thread",
-      "call_to_actions":[
-        {
-          "message":{
-            "attachment":{
-              "type":"template",
-              "payload":{
-                "template_type":"generic",
-                "elements":[
-                  {
-                    "title": "Welcome to the climatechangebot thread!",
-                    "item_url": "https://www.facebook.com/climatechangebot/",
-                    "image_url": "https://scontent-lga3-1.xx.fbcdn.net/t31.0-8/13422214_852984424805822_3203580027459777074_o.jpg",
-                    "subtitle": "Stay informed about climate change so that we can make a difference!",
-                    # "buttons":[
-                    #   {
-                    #     "type": "web_url",
-                    #     "title": "View Website",
-                    #     "url": "https://www.petersbowlerhats.com"
-                    #   },
-                    #   {
-                    #     "type": "postback",
-                    #     "title": "Start Chatting",
-                    #     "payload": "DEVELOPER_DEFINED_PAYLOAD"
-                    #   }
-                    # ]
-                  }
-                ]
-              }
+        "setting_type": "call_to_actions",
+        "thread_state": "new_thread",
+        "call_to_actions": [{
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Welcome to the climatechangebot thread!",
+                                "item_url": "https://www.facebook.com/climatechangebot/",
+                                "image_url": "https://scontent-lga3-1.xx.fbcdn.net/t31.0-8/13422214_852984424805822_3203580027459777074_o.jpg",
+                                "subtitle": "Stay informed about climate change so that we can make a difference!",
+                                # "buttons":[
+                                #   {
+                                #     "type": "web_url",
+                                #     "title": "View Website",
+                                #     "url": "https://www.petersbowlerhats.com"
+                                #   },
+                                #   {
+                                #     "type": "postback",
+                                #     "title": "Start Chatting",
+                                #     "payload": "DEVELOPER_DEFINED_PAYLOAD"
+                                #   }
+                                # ]
+                            }
+                        ]
+                    }
+                }
             }
-          }
-        }
-      ]
+        }]
     }
 
-    response = requests.post(FB_MESSAGING_URL, 
-        json=message_json, 
+    response = requests.post(FB_MESSAGING_URL,
+        json=message_json,
         headers={"Content-Type": "application/json"})
 
     print(response.content)
@@ -78,15 +76,16 @@ def create_welcome_message():
     else:
         raise Exception('Message update failed!')
 
+
 def delete_welcome_message():
     message_json = {
-        "setting_type":"call_to_actions",
-        "thread_state":"new_thread",
-        "call_to_actions":[]
+        "setting_type": "call_to_actions",
+        "thread_state": "new_thread",
+        "call_to_actions": []
     }
 
-    response = requests.post(FB_MESSAGING_URL, 
-        json=message_json, 
+    response = requests.post(FB_MESSAGING_URL,
+        json=message_json,
         headers={"Content-Type": "application/json"})
 
     print(response.content)

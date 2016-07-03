@@ -8,6 +8,7 @@
 
 from nytimesarticle import articleAPI
 
+
 class NytimesApi(object):
     def __init__(self, key):
         self.api = articleAPI(key)
@@ -16,7 +17,7 @@ class NytimesApi(object):
         self.secret_keyword = 'climate change and '
 
     def return_all(self, query):
-        return self.api.search(q = self.secret_keyword + query)
+        return self.api.search(q=self.secret_keyword + query)
 
     def return_content(self, res):
         article = {}

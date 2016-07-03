@@ -2,9 +2,10 @@
 from flask import Flask, request
 from flask import jsonify
 
-from bot_interface.bot_interface import NotificationType, RecipientMethod, BotInterface
+from bot_interface.bot_interface import BotInterface
+from message_processor.message_processor import MessageProcessor
 
-import requests
+# import requests
 
 app = Flask(__name__)
 
@@ -12,6 +13,8 @@ app.config.from_object("config.DevelopmentConfig")
 app.config.from_pyfile("local.cfg")
 
 bot = BotInterface(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
+msgproc = MessageProcessor(bot)
+
 
 @app.route("/")
 def index():
@@ -29,35 +32,23 @@ def webhook():
     if request.method == 'POST':
         messages = request.json
 
-        print(messages)
-        for entry in messages['entry']:
-            for m in entry['messaging']:
-                if m.get('message') and m['message'].get('text'):
-                    message = m['message']['text']
-                    recipient_id = m['sender']['id']
-
-                    response = bot.send_text_message(recipient_id, message,
-                                    RecipientMethod.ID.value, NotificationType.REGULAR.value)
-
-                    return success(response.status_code)
-                else:
-                    pass
+        msgproc.parse_messages(messages)
 
         return success(200)
 
 
 @app.errorhandler(404)
 def not_found(error):
-    return jsonify(response={'success': False}, 
-        status=404, 
-        message="Not Found")
+    return jsonify(response={'success': False},
+                   status=404,
+                   message="Not Found")
 
 
 def success(status=200, message=''):
-    return jsonify(response={'success': True}, 
-        status=status, 
-        mimetype="application/json",
-        message=message)
+    return jsonify(response={'success': True},
+                   status=status,
+                   mimetype="application/json",
+                   message=message)
 
 
 if __name__ == "__main__":
