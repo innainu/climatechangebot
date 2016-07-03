@@ -24,6 +24,8 @@ class TestNYTInterface(unittest.TestCase):
         articles = api.return_article_list('africa')
         self.assertIsInstance(articles, list)
         self.assertEqual(len(articles), 1)
+        self.assertIsInstance(articles[0], dict)
+        self.assertIn('web_url', articles[0].keys())
 
     def testReturnArticleListMultiple(self):
         api = NytimesApi(NYT_API_KEY)
