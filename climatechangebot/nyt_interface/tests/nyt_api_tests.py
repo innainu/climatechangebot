@@ -16,17 +16,17 @@ config.read("local_test_config.cfg")
 
 NYT_API_KEY = config.get('NYTIMES', 'nyt_key')
 
-class TestNYTInterface(unittest.TestCase):        
+
+class TestNYTInterface(unittest.TestCase):
 
     def testReturnArticleList(self):
         api = NytimesApi(NYT_API_KEY)
         articles = api.return_article_list('africa')
         self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 1)
 
-    def testReturnOneArticleType(self):
+    def testReturnArticleListMultiple(self):
         api = NytimesApi(NYT_API_KEY)
-        article = api.return_one_article('africa')
-        self.assertIsNotNone(article)
-        self.assertIsInstance(article, dict)
-        self.assertIn('web_url', article.keys())
-        
+        articles = api.return_article_list('africa', num=4)
+        self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 4)

@@ -15,8 +15,9 @@ import random
 
 
 class MessageProcessor(object):
-    def __init__(self, bot):
+    def __init__(self, bot, wit):
         self.BOT = bot
+        self.WIT = wit
 
     def parse_messages(self, messages):
         """
@@ -37,7 +38,9 @@ class MessageProcessor(object):
                     message = Message(m)
 
                     if message.message_text:
+                        #call witprocessor here
                         print(message.message_text)
+
 
                     if message.message_attachments:
                         # send a random gif

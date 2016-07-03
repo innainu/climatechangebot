@@ -3,9 +3,10 @@ from flask import Flask, request
 from flask import jsonify
 
 from bot_interface.bot_interface import BotInterface
+from message_processor.wit_processor import WitParser
+from nyt_interface.nyt_interface import NytimesApi
 from message_processor.message_processor import MessageProcessor
 
-# import requests
 
 app = Flask(__name__)
 
@@ -13,7 +14,9 @@ app.config.from_object("config.DevelopmentConfig")
 app.config.from_pyfile("local.cfg")
 
 bot = BotInterface(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
-msgproc = MessageProcessor(bot)
+nyt_api = NytimesApi(app.config['NYT_KEY'])
+wit = WitParser(app.config['WIT_KEY'], nyt_api)
+msgproc = MessageProcessor(bot, wit)
 
 
 @app.route("/")
