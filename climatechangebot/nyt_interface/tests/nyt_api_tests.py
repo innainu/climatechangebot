@@ -16,7 +16,8 @@ config.read("local_test_config.cfg")
 
 NYT_API_KEY = config.get('NYTIMES', 'nyt_key')
 
-class TestNYTInterface(unittest.TestCase):        
+
+class TestNYTInterface(unittest.TestCase):
 
     def testReturnArticleList(self):
         api = NytimesApi(NYT_API_KEY)
@@ -29,4 +30,3 @@ class TestNYTInterface(unittest.TestCase):
         self.assertIsNotNone(article)
         self.assertIsInstance(article, dict)
         self.assertIn('web_url', article.keys())
-        
