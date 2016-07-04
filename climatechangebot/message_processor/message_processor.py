@@ -8,15 +8,17 @@
     TO DO:
         - Make bot conversational using api.ai
         - Build out Wit.ai search functionaility
-
 """
 
 import random
 import bot_response_text
 import response_dicts
+import json
 
 from wit import Wit
 from wit.wit import WitError
+import apiai
+
 from bot_interface.bot_interface import ButtonType
 
 
@@ -39,9 +41,14 @@ class FacebookMessage(object):
             self.message_attachments = None
 
 
+class ApiAIParsedMessage(object):
+    def __init__(self):
+        self.action = None
+        self.response_text = None
+
+
 class WitParsedMessage():
     def __init__(self):
-        self.text = None
         self.intent = None
         self.search_queries = []
         self.locations = []
@@ -52,25 +59,63 @@ class WitParsedMessage():
         return False
 
 
-class WitParser(object):
+class ExternalApiParser(object):
     """
-        Gets entities from wit.ai
-
-        - each entity gets a confidence value from 0 to 1.
-            "1 is extremely confident. Lower than 0.5 is considered very low confidence."
-
-        - can add intents using api:
-        https://wit.ai/docs/http/20160330#get-intent-via-text-link
-
+        This calls external APIs for responses.
+        api.ai  for conversational queries
+        wit.ai for entities and intents
+            - each entity gets a confidence value from 0 to 1.
+                "1 is extremely confident. Lower than 0.5 is considered very low confidence."
+            - can add intents using api:
+            https://wit.ai/docs/http/20160330#get-intent-via-text-link
+            - self.actions : this is for merge and context functionality
     """
-
-    def __init__(self, key, bot, nyt_api):
-        #define actions
-        self.actions = {}
-        self.wit_client = Wit(access_token=key, actions=self.actions)
+    def __init__(self, wit_key, api_ai_key, bot, nyt_api):
         self.BOT = bot
         self.NYT_API = nyt_api
-        self.SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
+
+        self.wit_actions = {}
+        self.wit_client = Wit(access_token=wit_key, actions=self.wit_actions)
+        self.wit_empty_response = {'entities': []}
+
+        self.api_ai = apiai.ApiAI(api_ai_key)
+        self.API_AI_LANG = 'en'
+        self.api_ai_empty_response = {'result': {'fulfillment': {'speech': u''}}}
+
+        self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
+
+    def api_ai_call(self, text):
+        try:
+            api_ai_request = self.api_ai.text_request()
+            api_ai_request.lang = self.API_AI_LANG
+            api_ai_request.query = text
+            api_ai_response = json.loads(api_ai_request.getresponse().read())
+            status_code = api_ai_response['status']['code']
+            if status_code != 200:
+                api_ai_response = self.api_ai_empty_response
+
+        except Exception as e:
+            print(e)
+            api_ai_response = self.api_ai_empty_response
+
+        api_ai_parsed_message = self.parse_api_ai_response(api_ai_response)
+        return api_ai_parsed_message
+
+    def parse_api_ai_response(self, api_ai_response):
+        api_ai_parsed_message = ApiAIParsedMessage()
+        api_ai_result = api_ai_response['result']
+
+        if 'action' in api_ai_result:
+            api_ai_parsed_message.action = api_ai_result['action']
+        else:
+            api_ai_parsed_message.action = None
+
+        # the following keys are always included, empty if there is no response.
+        if 'fulfillment' in api_ai_result and 'speech' in api_ai_result['fulfillment']\
+                and len(api_ai_result['fulfillment']['speech']) > 0:
+            api_ai_parsed_message.response_text = api_ai_result['fulfillment']['speech']
+
+        return api_ai_parsed_message
 
     def wit_api_call(self, text):
         try:
@@ -78,12 +123,12 @@ class WitParser(object):
         except WitError as we:
             print(we)
             # the Wit API call failed due to a WitError, so let's make the response empty
-            wit_response = {'entities': []}
+            wit_response = self.wit_empty_response
 
-        wit_parsed_message = self.parse_wit_response(wit_response, text)
+        wit_parsed_message = self.parse_wit_response(wit_response)
         return wit_parsed_message
 
-    def parse_wit_response(self, wit_return_dict, text):
+    def parse_wit_response(self, wit_return_dict):
         """
             Takes a Wit response dict and converts into a WitParsedMessage object
         """
@@ -110,12 +155,30 @@ class WitParser(object):
 
         return wit_parsed_message
 
-    def wit_take_action(self, wit_parsed_message, recipient_id, num=1):
+    def take_external_action(self, message_text, recipient_id, num_articles=1,
+                             wit_parsed_message=None, api_ai_parsed_message=None):
         """
-            Sends messages to the user on behalf of the Wit Parser
+            Sends messages to the user.
+            if Wit Parser finds intent, return on behalf of wit.ai
+            else returns on behalf of api.ai
+            else returns helper callback
+
+            params:
+                message_text: str or unicode
+                recipient_id: str
+                num_articles: int
+                wit_parsed_message: WitParsedMessage
+                api_ai_parsed_message: ApiAIParsedMessage
+
+            returns:
+                http response
         """
+
+        if wit_parsed_message is None:
+            wit_parsed_message = self.wit_api_call(message_text)
+
         if wit_parsed_message.intent and wit_parsed_message.intent[0] == 'search_article' \
-                and wit_parsed_message.intent[1] > self.SEARCH_QUERY_CONFIDENCE_THRESH \
+                and wit_parsed_message.intent[1] > self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH \
                 and wit_parsed_message.has_at_least_one_entity():
 
             nyt_query_string = ""
@@ -128,7 +191,7 @@ class WitParser(object):
                 location = sorted(wit_parsed_message.locations, key=lambda x: x[1], reverse=True)[0]
                 nyt_query_string += " in " + location[0]
 
-            nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num)
+            nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
 
             template_elements = []
             for nyt in nyt_response:
@@ -151,8 +214,16 @@ class WitParser(object):
                 return response
 
         # nyt api returned nothing or Wit couldn't parse user message
-        response = self.send_cannot_compute_helper_callback(recipient_id)
+        # so call api.ai
+        if api_ai_parsed_message is None:
+            api_ai_parsed_message = self.api_ai_call(message_text)
 
+        if api_ai_parsed_message.response_text is not None:
+            response = self.BOT.send_text_message(recipient_id, api_ai_parsed_message.response_text)
+            return response
+
+        # Wit.ai and API.ai returned nothing, so return a helper callback
+        response = self.send_cannot_compute_helper_callback(recipient_id)
         return response
 
     def send_cannot_compute_helper_callback(self, recipient_id):
@@ -176,9 +247,9 @@ class MessageProcessor(object):
             to WitParser or other parsing objects that send responses back to the user
     """
 
-    def __init__(self, bot, wit, config):
+    def __init__(self, bot, external_api_parser, config):
         self.BOT = bot
-        self.WIT = wit
+        self.EXTERNAL_API_PARSER = external_api_parser
         self.CONFIG = config
 
     def parse_messages(self, messages):
@@ -211,8 +282,11 @@ class MessageProcessor(object):
                     #   but not both
                     if message.message_text:
                         #call witprocessor here
-                        wit_parsed_message = self.WIT.wit_api_call(message.message_text)
-                        response = self.WIT.wit_take_action(wit_parsed_message, recipient_id, 3)
+                        # wit_parsed_message = self.API_PARSER.wit_api_call(message.message_text)
+                        response = self.EXTERNAL_API_PARSER.take_external_action(
+                            message.message_text, recipient_id,
+                            self.CONFIG['NYT_NUM_ARTICLES_RETURNED']
+                        )
 
                     elif message.message_attachments:
                         # send a random gif
