@@ -32,16 +32,6 @@ class NytimesApi(object):
         article['date'] = res['pub_date']
         return article
 
-    # def return_one_article(self, query):
-    #     results = self.return_all(query)
-    #     idx = 0
-    #     articles = results['response']['docs']
-    #     #make sure to get an article with abstract
-    #     while articles[idx]['abstract'] is None:
-    #         idx += 1
-    #     article = self.return_content(articles[idx])
-    #     return article
-
     def return_article_list(self, query, num=1):
         articles = []
         results = self.return_all(query)

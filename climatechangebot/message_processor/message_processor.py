@@ -10,6 +10,7 @@
 
 import random
 
+from wit import Wit
 from config import Config
 from response_dicts import *
 # from bot_interface.bot_interface import NotificationType, RecipientMethod
@@ -34,6 +35,81 @@ class FacebookMessage(object):
             self.message_attachments = None
 
 
+class WitParsedMessage():
+    def __init__(self, text, entities, intent):
+        self.text = text
+        self.entities = entities
+        self.intent = intent
+
+
+class WitParser(object):
+    """
+        Gets entities from wit.ai
+
+        - each entity gets a confidence value from 0 to 1. do something with this?
+            "1 is extremely confident. Lower than 0.5 is considered very low confidence."
+
+        - can add intents using api:
+        https://wit.ai/docs/http/20160330#get-intent-via-text-link
+
+    """
+
+    def __init__(self, key, bot, nyt_api):
+        #define actions
+        self.actions = {}
+        self.client = Wit(access_token=key, actions=self.actions)
+        self.BOT = bot
+        self.NYT_API = nyt_api
+
+    def parse_message(self, text):
+        entities = []
+        mess = self.client.message(text)
+        mess_entities = mess['entities']
+
+        if 'intent' in mess_entities:
+            intent = (mess_entities['intent'][0]['value'], mess_entities['intent'][0]['confidence'])
+        else:
+            intent = None
+
+        for ent in mess_entities['search_query']:
+            entities.append((ent['value'], ent['confidence']))
+
+        wit_parsed_message = WitParsedMessage(text, entities, intent)
+        return wit_parsed_message
+
+    def take_action(self, wit_parsed_message, recipient_id, num=1):
+        """
+            Sends messages to the user on behalf of the Wit Parser
+        """
+        if wit_parsed_message.intent[0] == 'search_article' \
+                and wit_parsed_message.intent[1] > 0.5:
+            #take entitiy with highest confidence
+            ent = sorted(wit_parsed_message.entities, lambda x: x[1], reverse=True)[0]
+            nyt_response = self.NYT_API.return_article_list(ent, num=num)
+
+            template_elements = []
+            for nyt in nyt_response:
+
+                if nyt.get("image_url"):
+                    nyt_image_url = nyt["image_url"]
+                else:
+                    nyt_image_url = None
+
+                template_elements.append(
+                    self.BOT.create_generic_template_element(
+                        element_title=nyt["title"], element_item_url=nyt["web_url"],
+                        element_image_url=nyt_image_url, element_subtitle=nyt["abstract"]
+                    )
+                )
+
+            response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+
+        else:
+            response = self.BOT.send_text_message(recipient_id, "Cannot compute.")
+
+        return response
+
+
 class MessageProcessor(object):
     def __init__(self, bot, wit):
         self.BOT = bot
@@ -45,14 +121,15 @@ class MessageProcessor(object):
             to execute depending on the message type
 
 
-            :rtype: NOT SURE WHAT THIS SHOULD RETURN YET
+            :rtype: response from requests.post() method
         """
 
-        if Config.DEVELOPMENT:
+        if Config.DEBUG:
             print(messages)
 
         for entry in messages['entry']:
             for m in entry['messaging']:
+                response = None
                 recipient_id = m['sender']['id']
 
                 if m.get('message'):
@@ -68,22 +145,14 @@ class MessageProcessor(object):
                     #   but not both
                     if message.message_text:
                         #call witprocessor here
-                        print(message.message_text)
+                        wit_parsed_message = self.WIT.parse_message(message.message_text)
+                        response = self.WIT.take_action(wit_parsed_message, recipient_id)
 
-
-                    if message.message_attachments:
+                    elif message.message_attachments:
                         # send a random gif
                         gif_attachment_url = self.get_rand_gif()
                         response = self.BOT.send_image_payload_message(recipient_id,
                                                                        image_url=gif_attachment_url)
-
-                    # response = self.BOT.send_text_message(recipient_id, message,
-                                    # RecipientMethod.ID.value, NotificationType.REGULAR.value)
-
-                    # process text message
-                    # self.parse_text_message(message, recipient_id)
-
-                    # return response.status_code
 
                 elif m.get('postback'):
                     """
@@ -91,7 +160,7 @@ class MessageProcessor(object):
                     """
 
                     postback_paylod = m['postback']['payload']
-                    if Config.DEVELOPMENT:
+                    if Config.DEBUG:
                         print('got postback %s' % postback_paylod)
                 elif m.get('optin'):
                     """
@@ -104,7 +173,7 @@ class MessageProcessor(object):
                     """
 
                     optin_ref = m['optin']['ref']
-                    if Config.DEVELOPMENT:
+                    if Config.DEBUG:
                         print('got optin %s' % optin_ref)
                 elif m.get('account_linking'):
                     """
@@ -112,7 +181,7 @@ class MessageProcessor(object):
                     """
 
                     account_linking_status = m['account_linking']['status']
-                    if Config.DEVELOPMENT:
+                    if Config.DEBUG:
                         print('got account_linking status: %s' % account_linking_status)
                 elif m.get('delivery'):
                     """
@@ -123,7 +192,7 @@ class MessageProcessor(object):
 
                     delivery = m['delivery']
                     mid_array = delivery['mids']
-                    if Config.DEVELOPMENT:
+                    if Config.DEBUG:
                         print('got message delivery notification for %s' % str(mid_array))
                 elif m.get('read'):
                     """
@@ -133,10 +202,14 @@ class MessageProcessor(object):
                     read = m['read']
                     read_watermark = read['watermark']
                     read_seq = read['seq']
-                    if Config.DEVELOPMENT:
+                    if Config.DEBUG:
                         print('got message read notificaiton watermark: %s seq: %s' % (read_watermark, read_seq))
                 else:
                     pass
+
+            if Config.DEBUG:
+                print(response)
+                print(response.status_code)
 
     def get_rand_int(self, max_int):
         return random.randint(0, max_int)
