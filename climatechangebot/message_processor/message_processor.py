@@ -19,7 +19,7 @@ from wit import Wit
 from wit.wit import WitError
 import apiai
 
-from bot_interface.bot_interface import ButtonType
+from bot_interface.bot_interface import ButtonType, SenderActions
 
 
 class FacebookMessage(object):
@@ -281,18 +281,22 @@ class MessageProcessor(object):
                     # We are assuming that a message has either a text payload or an image payload
                     #   but not both
                     if message.message_text:
+                        self.BOT.send_sender_action(recipient_id, SenderActions.TYPING_ON.value)
                         #call witprocessor here
                         # wit_parsed_message = self.API_PARSER.wit_api_call(message.message_text)
                         response = self.EXTERNAL_API_PARSER.take_external_action(
                             message.message_text, recipient_id,
                             self.CONFIG['NYT_NUM_ARTICLES_RETURNED']
                         )
+                        self.BOT.send_sender_action(recipient_id, SenderActions.TYPING_OFF.value)
 
                     elif message.message_attachments:
+                        self.BOT.send_sender_action(recipient_id, SenderActions.TYPING_ON.value)
                         # send a random gif
                         gif_attachment_url = self.get_rand_gif()
                         response = self.BOT.send_image_payload_message(recipient_id,
                                                                        image_url=gif_attachment_url)
+                        self.BOT.send_sender_action(recipient_id, SenderActions.TYPING_OFF.value)
 
                 elif m.get('postback'):
                     """

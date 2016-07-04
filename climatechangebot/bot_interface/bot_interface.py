@@ -32,6 +32,12 @@ class ButtonType(Enum):
     POSTBACK = "postback"
 
 
+class SenderActions(Enum):
+    SEEN = "mark_seen"
+    TYPING_ON = "typing_on"
+    TYPING_OFF = "typing_off"
+
+
 class BotInterface(object):
     def __init__(self, fb_api_version, fb_access_token):
         self.FB_API_VERSION = fb_api_version
@@ -176,6 +182,10 @@ class BotInterface(object):
         message = self.create_text_message(recipient_info, message,
                                            recipient_method, notification_type)
 
+        return self._send(message)
+
+    def send_sender_action(self, recipient_info, sender_action=SenderActions.SEEN.value):
+        message = {"recipient": {"id": recipient_info}, "sender_action": sender_action}
         return self._send(message)
 
     def send_generic_payload_message(self, recipient_info,

@@ -91,3 +91,10 @@ class TestBotInterface(unittest.TestCase):
         self.assertIs(type(response), dict)
         self.assertIn("first_name", response.keys())
         self.assertIn("profile_pic", response.keys())
+
+    def testSenderAction(self):
+        bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
+
+        response = bot.send_sender_action(config.get('SECRET', 'fb_test_recipient_id'),
+                                          SenderActions.TYPING_ON.value)
+        self.assertEqual(response.status_code, 200)
