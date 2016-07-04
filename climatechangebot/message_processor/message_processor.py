@@ -86,8 +86,10 @@ class MessageProcessor(object):
                     """
                         Someone clicks on a postback message we sent
                     """
+
                     postback_paylod = m['postback']['payload']
-                    print('got postback %s' % postback_paylod)
+                    if Config.DEVELOPMENT:
+                        print('got postback %s' % postback_paylod)
                 elif m.get('optin'):
                     """
                         This callback will occur when the Send-to-Messenger plugin has been tapped.
@@ -97,6 +99,7 @@ class MessageProcessor(object):
                             subscribe to this callback by selecting the messaging_optins field
                             when setting up your webhook.
                     """
+
                     optin_ref = m['optin']['ref']
                     if Config.DEVELOPMENT:
                         print('got optin %s' % optin_ref)
@@ -104,14 +107,17 @@ class MessageProcessor(object):
                     """
                         For letting users login to our app accounts through FB messenger
                     """
+
                     account_linking_status = m['account_linking']['status']
-                    print('got account_linking status: %s' % account_linking_status)
+                    if Config.DEVELOPMENT:
+                        print('got account_linking status: %s' % account_linking_status)
                 elif m.get('delivery'):
                     """
                         FB is letting us know that a message was delivered
                         You can subscribe to this callback by selecting the message_deliveries field
                         when setting up your webhook.
                     """
+
                     delivery = m['delivery']
                     mid_array = delivery['mids']
                     if Config.DEVELOPMENT:
@@ -120,6 +126,7 @@ class MessageProcessor(object):
                     """
                         Notifies us that a user read a message
                     """
+
                     read = m['read']
                     read_watermark = read['watermark']
                     read_seq = read['seq']
