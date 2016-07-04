@@ -1,6 +1,8 @@
 """
 
     searches nyt for articles related to climate change and returns them
+    returns pages, each page has 10 articles. currenly only returns one page.
+    cannot specify how many articles per page in api.
 
     TODO: add date functionality after wit.ai
 
@@ -12,8 +14,6 @@ from nytimesarticle import articleAPI
 class NytimesApi(object):
     def __init__(self, key):
         self.api = articleAPI(key)
-        #nyt api gives 10 articles per page
-        self.DEFAULT_NUM_ARTICLES = 10
         self.secret_keyword = 'climate change and '
 
     def return_all(self, query):
@@ -32,21 +32,26 @@ class NytimesApi(object):
         article['date'] = res['pub_date']
         return article
 
-    def return_one_article(self, query):
-        results = self.return_all(query)
-        idx = 0
-        articles = results['response']['docs']
-        #make sure to get an article with abstract
-        while articles[idx]['abstract'] is None:
-            idx += 1
-        article = self.return_content(articles[idx])
-        return article
+    # def return_one_article(self, query):
+    #     results = self.return_all(query)
+    #     idx = 0
+    #     articles = results['response']['docs']
+    #     #make sure to get an article with abstract
+    #     while articles[idx]['abstract'] is None:
+    #         idx += 1
+    #     article = self.return_content(articles[idx])
+    #     return article
 
-    def return_article_list(self, query):
+    def return_article_list(self, query, num=1):
         articles = []
         results = self.return_all(query)
-        for idx in xrange(self.DEFAULT_NUM_ARTICLES):
-            if results['response']['docs'][idx]['abstract'] is None:
+        idx = 0
+        for doc in results['response']['docs']:
+            if doc['abstract'] is None:
                 continue
-            articles.append(self.return_content(results['response']['docs'][idx]))
+            articles.append(self.return_content(doc))
+            idx += 1
+            if idx == num:
+                break
+
         return articles

@@ -11,6 +11,7 @@ class Config(object):
     FB_VERIFY_TOKEN = 'this-is-in-local-config'
     FB_WEBHOOK_URL = 'this-is-in-local-config'
     NYT_KEY = 'this-is-in-local-config'
+    WIT_KEY = 'this-is-in-local-config'
 
 
 class ProductionConfig(Config):

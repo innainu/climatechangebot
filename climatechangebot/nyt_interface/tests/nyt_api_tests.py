@@ -23,10 +23,12 @@ class TestNYTInterface(unittest.TestCase):
         api = NytimesApi(NYT_API_KEY)
         articles = api.return_article_list('africa')
         self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 1)
+        self.assertIsInstance(articles[0], dict)
+        self.assertIn('web_url', articles[0].keys())
 
-    def testReturnOneArticleType(self):
+    def testReturnArticleListMultiple(self):
         api = NytimesApi(NYT_API_KEY)
-        article = api.return_one_article('africa')
-        self.assertIsNotNone(article)
-        self.assertIsInstance(article, dict)
-        self.assertIn('web_url', article.keys())
+        articles = api.return_article_list('africa', num=4)
+        self.assertIsInstance(articles, list)
+        self.assertEqual(len(articles), 4)

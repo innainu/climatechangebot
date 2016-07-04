@@ -35,8 +35,9 @@ class FacebookMessage(object):
 
 
 class MessageProcessor(object):
-    def __init__(self, bot):
+    def __init__(self, bot, wit):
         self.BOT = bot
+        self.WIT = wit
 
     def parse_messages(self, messages):
         """
@@ -66,7 +67,9 @@ class MessageProcessor(object):
                     # We are assuming that a message has either a text payload or an image payload
                     #   but not both
                     if message.message_text:
+                        #call witprocessor here
                         print(message.message_text)
+
 
                     if message.message_attachments:
                         # send a random gif

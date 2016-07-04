@@ -8,7 +8,9 @@ MarkupSafe==0.23
 nose==1.3.7
 nytimesarticle==0.1.0
 requests==2.10.0
+simplejson==3.8.2
 six==1.10.0
 traceback2==1.4.0
 unittest2==1.1.0
 Werkzeug==0.11.4
+wit==3.5.0
