@@ -61,30 +61,35 @@ class WitParser(object):
     def __init__(self, key, bot, nyt_api):
         #define actions
         self.actions = {}
-        self.client = Wit(access_token=key, actions=self.actions)
+        self.wit_client = Wit(access_token=key, actions=self.actions)
         self.BOT = bot
         self.NYT_API = nyt_api
         self.SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
 
-    def parse_message(self, text):
+    def wit_api_call(self, text):
+        wit_response = self.wit_client.message(text)
+        wit_parsed_message = self.parse_wit_response(wit_response, text)
+        return wit_parsed_message
+
+    def parse_wit_response(self, wit_return_dict, text):
+        """
+            Takes a Wit response dict and converts into a WitParsedMessage object
+        """
         entities = []
         intent = None
-        mess = self.client.message(text)
-        mess_entities = mess['entities']
+        wit_entities = wit_return_dict['entities']
 
-        print(mess)
+        if 'intent' in wit_entities:
+            intent = (wit_entities['intent'][0]['value'], wit_entities['intent'][0]['confidence'])
 
-        if 'intent' in mess_entities:
-            intent = (mess_entities['intent'][0]['value'], mess_entities['intent'][0]['confidence'])
-
-        if 'search_query' in mess_entities:
-            for ent in mess_entities['search_query']:
+        if 'search_query' in wit_entities:
+            for ent in wit_entities['search_query']:
                 entities.append((ent['value'], ent['confidence']))
 
         wit_parsed_message = WitParsedMessage(text, entities, intent)
         return wit_parsed_message
 
-    def take_action(self, wit_parsed_message, recipient_id, num=1):
+    def wit_take_action(self, wit_parsed_message, recipient_id, num=1):
         """
             Sends messages to the user on behalf of the Wit Parser
         """
@@ -154,8 +159,8 @@ class MessageProcessor(object):
                     #   but not both
                     if message.message_text:
                         #call witprocessor here
-                        wit_parsed_message = self.WIT.parse_message(message.message_text)
-                        response = self.WIT.take_action(wit_parsed_message, recipient_id, 3)
+                        wit_parsed_message = self.WIT.wit_api_call(message.message_text)
+                        response = self.WIT.wit_take_action(wit_parsed_message, recipient_id, 3)
 
                     elif message.message_attachments:
                         # send a random gif
