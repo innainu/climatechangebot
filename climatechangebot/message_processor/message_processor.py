@@ -40,10 +40,16 @@ class FacebookMessage(object):
 
 
 class WitParsedMessage():
-    def __init__(self, text, entities, intent):
-        self.text = text
-        self.entities = entities
-        self.intent = intent
+    def __init__(self):
+        self.text = None
+        self.intent = None
+        self.search_queries = []
+        self.locations = []
+
+    def has_at_least_one_entity(self):
+        if len(self.search_queries) > 0 or len(self.locations) > 0:
+            return True
+        return False
 
 
 class WitParser(object):
@@ -81,18 +87,27 @@ class WitParser(object):
         """
             Takes a Wit response dict and converts into a WitParsedMessage object
         """
-        entities = []
-        intent = None
-        wit_entities = wit_return_dict['entities']
 
+        wit_entities = wit_return_dict['entities']
+        wit_parsed_message = WitParsedMessage()
+
+        intent = None
         if 'intent' in wit_entities:
             intent = (wit_entities['intent'][0]['value'], wit_entities['intent'][0]['confidence'])
+        wit_parsed_message.intent = intent
 
+        search_queries = []
         if 'search_query' in wit_entities:
-            for ent in wit_entities['search_query']:
-                entities.append((ent['value'], ent['confidence']))
+            for search_query in wit_entities['search_query']:
+                search_queries.append((search_query['value'], search_query['confidence']))
+        wit_parsed_message.search_queries = search_queries
 
-        wit_parsed_message = WitParsedMessage(text, entities, intent)
+        locations = []
+        if 'location' in wit_entities:
+            for loc in wit_entities['location']:
+                locations.append((loc['value'], loc['confidence']))
+        wit_parsed_message.locations = locations
+
         return wit_parsed_message
 
     def wit_take_action(self, wit_parsed_message, recipient_id, num=1):
@@ -101,10 +116,19 @@ class WitParser(object):
         """
         if wit_parsed_message.intent and wit_parsed_message.intent[0] == 'search_article' \
                 and wit_parsed_message.intent[1] > self.SEARCH_QUERY_CONFIDENCE_THRESH \
-                and len(wit_parsed_message.entities) > 0:
-            #take entitiy with highest confidence
-            ent = sorted(wit_parsed_message.entities, key=lambda x: x[1], reverse=True)[0]
-            nyt_response = self.NYT_API.return_article_list(ent[0], num=num)
+                and wit_parsed_message.has_at_least_one_entity():
+
+            nyt_query_string = ""
+            # take entitiy with highest confidence
+            if len(wit_parsed_message.search_queries) > 0:
+                query = sorted(wit_parsed_message.search_queries, key=lambda x: x[1], reverse=True)[0]
+                nyt_query_string += query[0]
+
+            if len(wit_parsed_message.locations) > 0:
+                location = sorted(wit_parsed_message.locations, key=lambda x: x[1], reverse=True)[0]
+                nyt_query_string += " in " + location[0]
+
+            nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num)
 
             template_elements = []
             for nyt in nyt_response:
@@ -121,10 +145,13 @@ class WitParser(object):
                     )
                 )
 
-            response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+            # if nyt api returns something
+            if len(template_elements) > 0:
+                response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+                return response
 
-        else:
-            response = self.send_cannot_compute_helper_callback(recipient_id)
+        # nyt api returned nothing or Wit couldn't parse user message
+        response = self.send_cannot_compute_helper_callback(recipient_id)
 
         return response
 
@@ -232,9 +259,9 @@ class MessageProcessor(object):
                     """
 
                     delivery = m['delivery']
-                    mid_array = delivery['mids']
+                    # mid_array = delivery['mids']
                     if self.CONFIG['DEBUG']:
-                        print('got message delivery notification for %s' % str(mid_array))
+                        print('got message delivery notification for %s' % str(delivery))
                 elif m.get('read'):
                     """
                         Notifies us that a user read a message

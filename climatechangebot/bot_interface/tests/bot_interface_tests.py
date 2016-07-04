@@ -43,7 +43,7 @@ class TestBotInterface(unittest.TestCase):
         bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
 
         elements = []
-        
+
         button = bot.create_button(button_type=ButtonType.WEBURL.value,
             title="Test Button", url="http://www.nytimes.com/")
         elements.append(bot.create_generic_template_element(element_title="Test Title 1", element_item_url="http://www.nytimes.com/",
@@ -57,7 +57,7 @@ class TestBotInterface(unittest.TestCase):
         response = bot.send_generic_payload_message(config.get('SECRET', 'fb_test_recipient_id'),
             RecipientMethod.ID.value, NotificationType.REGULAR.value,
             elements=elements)
-        
+
         self.assertEqual(response.status_code, 200)
 
     def testSendPayloadMessageButton(self):
@@ -91,4 +91,3 @@ class TestBotInterface(unittest.TestCase):
         self.assertIs(type(response), dict)
         self.assertIn("first_name", response.keys())
         self.assertIn("profile_pic", response.keys())
-

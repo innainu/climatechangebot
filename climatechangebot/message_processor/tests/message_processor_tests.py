@@ -91,6 +91,40 @@ class TestWitParser(unittest.TestCase):
         response = wit.wit_take_action(wit_parsed_message, recipient_id, num=1)
         self.assertEqual(response.status_code, 200)
 
+    def testTakeActionMultipleLocation(self):
+        """
+            Only location entity is present
+        """
+        t = {u'_text': u"I'm curious to see how climate change is affecting nyc and peru", u'entities': {u'intent': [{u'confidence': 0.9995201878399377,u'value': u'search_article'}],
+             u'location': [{u'confidence': 0.7712675207275367,u'entities': {u'local_search_query': [{u'confidence': 0.9306302049390484,u'suggested': True,
+             u'type': u'value',u'value': u'nyc'}]},u'suggested': True,u'type': u'value',u'value': u'nyc'},{u'confidence': 0.9306424865316572,u'entities': {},u'suggested': True,
+             u'type': u'value',u'value': u'peru'}]},u'msg_id': u'04dba21c-80d3-4013-b07d-60e748df7a1e'}
+        wit_parsed_message = wit.parse_wit_response(t, "I'm curious to see how climate change is affecting nyc and peru")
+        response = wit.wit_take_action(wit_parsed_message, recipient_id, num=1)
+        self.assertEqual(response.status_code, 200)
+
+    def testTakeActionSearchAndLocation(self):
+        """
+            Only location entity is present
+        """
+        t = {u'_text': u'i want to see articles about obama in nyc',u'entities': {u'intent': [{u'confidence': 0.998460645506234,u'value': u'search_article'}],u'location': [{u'confidence': 0.9942592382669772,
+             u'entities': {u'local_search_query': [{u'confidence': 0.9306302049390484,u'suggested': True,u'type': u'value',u'value': u'nyc'}]},u'suggested': True,
+             u'type': u'value',u'value': u'nyc'}],u'search_query': [{u'confidence': 0.9995756415635056,u'suggested': True,u'type': u'value',
+             u'value': u'obama'}]},u'msg_id': u'95e1feb5-1e10-4d5a-ac88-b821a05b5b77'}
+        wit_parsed_message = wit.parse_wit_response(t, 'i want to see articles about obama in nyc')
+        response = wit.wit_take_action(wit_parsed_message, recipient_id, num=3)
+        self.assertEqual(response.status_code, 200)
+
+    def testTakeActionNYTReturnsNone(self):
+        """
+            Only location entity is present
+        """
+        t = {u'_text': u'blah blah', u'entities': {u'intent': [{u'confidence': 0.8306483560746919, u'value': u'search_article'}],
+             u'search_query': [{u'confidence': 0.8408922863637576, u'suggested': True, u'type': u'value', u'value': u'sochestuka'}, {u'confidence': 0.9926250080978738, u'suggested': True, u'type': u'value', u'value': u'clanabapema'}]}, u'msg_id': u'413c6a34-1e93-479c-b3c0-58c12d99ff9c'}
+        wit_parsed_message = wit.parse_wit_response(t, 'blah blah')
+        response = wit.wit_take_action(wit_parsed_message, recipient_id, num=3)
+        self.assertEqual(response.status_code, 200)
+
     def testCannotComputeCallback(self):
         response = wit.send_cannot_compute_helper_callback(recipient_id)
         self.assertEqual(response.status_code, 200)
