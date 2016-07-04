@@ -5,13 +5,17 @@
         https://developers.facebook.com/docs/messenger-platform/webhook-reference
 
 
+    TO DO:
+        - Cannot compute: should have a helper call back button and "View trending"
+        - Write Tests for message processor
+        - Make bot conversational using api.ai
+        - Build out Wit.ai search functionaility
 
 """
 
 import random
 
 from wit import Wit
-from config import Config
 from response_dicts import *
 # from bot_interface.bot_interface import NotificationType, RecipientMethod
 
@@ -60,19 +64,22 @@ class WitParser(object):
         self.client = Wit(access_token=key, actions=self.actions)
         self.BOT = bot
         self.NYT_API = nyt_api
+        self.SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
 
     def parse_message(self, text):
         entities = []
+        intent = None
         mess = self.client.message(text)
         mess_entities = mess['entities']
 
+        print(mess)
+
         if 'intent' in mess_entities:
             intent = (mess_entities['intent'][0]['value'], mess_entities['intent'][0]['confidence'])
-        else:
-            intent = None
 
-        for ent in mess_entities['search_query']:
-            entities.append((ent['value'], ent['confidence']))
+        if 'search_query' in mess_entities:
+            for ent in mess_entities['search_query']:
+                entities.append((ent['value'], ent['confidence']))
 
         wit_parsed_message = WitParsedMessage(text, entities, intent)
         return wit_parsed_message
@@ -81,11 +88,12 @@ class WitParser(object):
         """
             Sends messages to the user on behalf of the Wit Parser
         """
-        if wit_parsed_message.intent[0] == 'search_article' \
-                and wit_parsed_message.intent[1] > 0.5:
+        if wit_parsed_message.intent and wit_parsed_message.intent[0] == 'search_article' \
+                and wit_parsed_message.intent[1] > self.SEARCH_QUERY_CONFIDENCE_THRESH \
+                and len(wit_parsed_message.entities) > 0:
             #take entitiy with highest confidence
-            ent = sorted(wit_parsed_message.entities, lambda x: x[1], reverse=True)[0]
-            nyt_response = self.NYT_API.return_article_list(ent, num=num)
+            ent = sorted(wit_parsed_message.entities, key=lambda x: x[1], reverse=True)[0]
+            nyt_response = self.NYT_API.return_article_list(ent[0], num=num)
 
             template_elements = []
             for nyt in nyt_response:
@@ -111,9 +119,10 @@ class WitParser(object):
 
 
 class MessageProcessor(object):
-    def __init__(self, bot, wit):
+    def __init__(self, bot, wit, config):
         self.BOT = bot
         self.WIT = wit
+        self.CONFIG = config
 
     def parse_messages(self, messages):
         """
@@ -123,8 +132,8 @@ class MessageProcessor(object):
 
             :rtype: response from requests.post() method
         """
-
-        if Config.DEBUG:
+        print('debug is ' + str(self.CONFIG['DEBUG']))
+        if self.CONFIG['DEBUG']:
             print(messages)
 
         for entry in messages['entry']:
@@ -146,7 +155,7 @@ class MessageProcessor(object):
                     if message.message_text:
                         #call witprocessor here
                         wit_parsed_message = self.WIT.parse_message(message.message_text)
-                        response = self.WIT.take_action(wit_parsed_message, recipient_id)
+                        response = self.WIT.take_action(wit_parsed_message, recipient_id, 3)
 
                     elif message.message_attachments:
                         # send a random gif
@@ -160,7 +169,7 @@ class MessageProcessor(object):
                     """
 
                     postback_paylod = m['postback']['payload']
-                    if Config.DEBUG:
+                    if self.CONFIG['DEBUG']:
                         print('got postback %s' % postback_paylod)
                 elif m.get('optin'):
                     """
@@ -173,7 +182,7 @@ class MessageProcessor(object):
                     """
 
                     optin_ref = m['optin']['ref']
-                    if Config.DEBUG:
+                    if self.CONFIG['DEBUG']:
                         print('got optin %s' % optin_ref)
                 elif m.get('account_linking'):
                     """
@@ -181,7 +190,7 @@ class MessageProcessor(object):
                     """
 
                     account_linking_status = m['account_linking']['status']
-                    if Config.DEBUG:
+                    if self.CONFIG['DEBUG']:
                         print('got account_linking status: %s' % account_linking_status)
                 elif m.get('delivery'):
                     """
@@ -192,7 +201,7 @@ class MessageProcessor(object):
 
                     delivery = m['delivery']
                     mid_array = delivery['mids']
-                    if Config.DEBUG:
+                    if self.CONFIG['DEBUG']:
                         print('got message delivery notification for %s' % str(mid_array))
                 elif m.get('read'):
                     """
@@ -202,14 +211,13 @@ class MessageProcessor(object):
                     read = m['read']
                     read_watermark = read['watermark']
                     read_seq = read['seq']
-                    if Config.DEBUG:
+                    if self.CONFIG['DEBUG']:
                         print('got message read notificaiton watermark: %s seq: %s' % (read_watermark, read_seq))
                 else:
                     pass
 
-            if Config.DEBUG:
-                print(response)
-                print(response.status_code)
+            if response:
+                return response
 
     def get_rand_int(self, max_int):
         return random.randint(0, max_int)

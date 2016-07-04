@@ -15,7 +15,7 @@ app.config.from_pyfile("local.cfg")
 bot = BotInterface(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
 nyt_api = NytimesApi(app.config['NYT_KEY'])
 wit = WitParser(app.config['WIT_KEY'], bot, nyt_api)
-msgproc = MessageProcessor(bot, wit)
+msgproc = MessageProcessor(bot, wit, app.config)
 
 
 @app.route("/")
@@ -34,7 +34,10 @@ def webhook():
     if request.method == 'POST':
         messages = request.json
 
-        msgproc.parse_messages(messages)
+        response = msgproc.parse_messages(messages)
+
+        print('Sent a message')
+        print(response)
 
         return success(200)
 
