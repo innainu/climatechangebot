@@ -6,8 +6,9 @@
 
 
     TO DO:
-        - Make bot conversational using api.ai
+        - Remove dependencies on API.ai with home grown conversational toolkit
         - Build out Wit.ai search functionaility
+        - Make caching of messages more sophisticated
 """
 
 import random
@@ -210,6 +211,7 @@ class ExternalApiParser(object):
 
             # if nyt api returns something
             if len(template_elements) > 0:
+                response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
                 return response
 
@@ -251,6 +253,7 @@ class MessageProcessor(object):
         self.BOT = bot
         self.EXTERNAL_API_PARSER = external_api_parser
         self.CONFIG = config
+        self.cache_message_ids = []
 
     def parse_messages(self, messages):
         """
@@ -263,6 +266,10 @@ class MessageProcessor(object):
         print('debug is ' + str(self.CONFIG['DEBUG']))
         if self.CONFIG['DEBUG']:
             print(messages)
+
+        # this is a really simple caching scheme, we should probably fix it later
+        if len(self.cache_message_ids) > 200:
+            self.cache_message_ids = self.cache_message_ids[-100:]
 
         for entry in messages['entry']:
             for m in entry['messaging']:
@@ -278,6 +285,10 @@ class MessageProcessor(object):
 
                     message = FacebookMessage(m)
 
+                    if message.message_id in self.cache_message_ids:
+                        continue
+
+                    self.cache_message_ids.append(message.message_id)
                     # We are assuming that a message has either a text payload or an image payload
                     #   but not both
                     if message.message_text:

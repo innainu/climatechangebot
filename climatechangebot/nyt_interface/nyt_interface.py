@@ -11,6 +11,7 @@
 from nytimesarticle import articleAPI
 import random
 
+
 class NytimesApi(object):
     def __init__(self, key):
         self.api = articleAPI(key)
@@ -32,7 +33,7 @@ class NytimesApi(object):
         article['date'] = res['pub_date']
         return article
 
-    def return_article_list(self, query, num=1):
+    def return_article_list(self, query, num=1, randomize=False):
         articles = []
         results = self.return_all(query)
         idx = 0
@@ -43,5 +44,7 @@ class NytimesApi(object):
             idx += 1
             if idx == num:
                 break
-        random.shuffle(articles)
+        if randomize:
+            random.shuffle(articles)
+
         return articles
