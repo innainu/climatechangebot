@@ -100,7 +100,7 @@ class BotInterface(object):
         return attachment
 
     def create_button_template(self, button_title="", buttons=[]):
-        assert type(button_title) == str
+        assert type(button_title) in [str, unicode]
         assert type(buttons) == list
         assert len(buttons) > 0
 
@@ -142,7 +142,7 @@ class BotInterface(object):
 
     def create_button(self, button_type=ButtonType.WEBURL.value,
                       title="", url="", payload=""):
-        assert type(title) == str
+        assert type(title) in [str, unicode]
         assert type(url) == str
         assert type(payload) == str
 

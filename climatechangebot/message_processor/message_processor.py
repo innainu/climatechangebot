@@ -6,17 +6,18 @@
 
 
     TO DO:
-        - Cannot compute: should have a helper call back button and "View trending"
         - Make bot conversational using api.ai
         - Build out Wit.ai search functionaility
 
 """
 
 import random
+import bot_response_text
+import response_dicts
 
 from wit import Wit
-from response_dicts import *
-# from bot_interface.bot_interface import NotificationType, RecipientMethod
+from wit.wit import WitError
+from bot_interface.bot_interface import ButtonType
 
 
 class FacebookMessage(object):
@@ -66,7 +67,13 @@ class WitParser(object):
         self.SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
 
     def wit_api_call(self, text):
-        wit_response = self.wit_client.message(text)
+        try:
+            wit_response = self.wit_client.message(text)
+        except WitError as we:
+            print(we)
+            # the Wit API call failed due to a WitError, so let's make the response empty
+            wit_response = {'entities': []}
+
         wit_parsed_message = self.parse_wit_response(wit_response, text)
         return wit_parsed_message
 
@@ -117,12 +124,23 @@ class WitParser(object):
             response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
 
         else:
-            response = self.BOT.send_text_message(recipient_id, "Cannot compute.")
+            response = self.send_cannot_compute_helper_callback(recipient_id)
 
         return response
 
-    def send_cannot_compute_helper_callback(self):
-        pass
+    def send_cannot_compute_helper_callback(self, recipient_id):
+        help_button = self.BOT.create_button(
+            button_type=ButtonType.POSTBACK.value, title="Help",
+            payload="HELP_POSTBACK"
+        )
+
+        response = self.BOT.send_button_payload_message(
+            recipient_id,
+            button_title=bot_response_text.help_button_title,
+            buttons=[help_button]
+        )
+
+        return response
 
 
 class MessageProcessor(object):
@@ -180,9 +198,11 @@ class MessageProcessor(object):
                         Someone clicks on a postback message we sent
                     """
 
-                    postback_paylod = m['postback']['payload']
+                    postback_payload = m['postback']['payload']
                     if self.CONFIG['DEBUG']:
-                        print('got postback %s' % postback_paylod)
+                        print('got postback %s' % postback_payload)
+
+                    response = self.postback_parser(recipient_id, postback_payload)
                 elif m.get('optin'):
                     """
                         This callback will occur when the Send-to-Messenger plugin has been tapped.
@@ -231,6 +251,13 @@ class MessageProcessor(object):
             if response:
                 return response
 
+    def postback_parser(self, recipient_id, postback_payload):
+        response = None
+        if postback_payload == "HELP_POSTBACK":
+            response = self.BOT.send_text_message(recipient_id, bot_response_text.help_postback_text)
+
+        return response
+
     def get_rand_int(self, max_int):
         return random.randint(0, max_int)
 
@@ -239,6 +266,6 @@ class MessageProcessor(object):
             Gets a random gif given a gif type from the gif_dicts
 
         """
-        gif_links = gif_dict[gif_type]
+        gif_links = response_dicts.gif_dict[gif_type]
         max_int = len(gif_links) - 1
         return gif_links[self.get_rand_int(max_int)]

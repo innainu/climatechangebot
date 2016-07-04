@@ -86,8 +86,11 @@ class TestWitParser(unittest.TestCase):
             Intent and entity are present but with low confidence score
         """
         t = {u'_text': u'articles about climate change and obama', u'entities': {u'intent': [{u'confidence': 0.8306483560746919, u'value': u'search_article'}],
-             u'search_query': [{u'confidence': 0.8408922863637576, u'suggested': True, u'type': u'value', u'value': u'climate change'}, {u'confidence': 0.9926250080978738,
-             u'suggested': True, u'type': u'value', u'value': u'obama'}]}, u'msg_id': u'413c6a34-1e93-479c-b3c0-58c12d99ff9c'}
+             u'search_query': [{u'confidence': 0.8408922863637576, u'suggested': True, u'type': u'value', u'value': u'climate change'}, {u'confidence': 0.9926250080978738, u'suggested': True, u'type': u'value', u'value': u'obama'}]}, u'msg_id': u'413c6a34-1e93-479c-b3c0-58c12d99ff9c'}
         wit_parsed_message = wit.parse_wit_response(t, "articles about climate change and obama")
         response = wit.wit_take_action(wit_parsed_message, recipient_id, num=1)
+        self.assertEqual(response.status_code, 200)
+
+    def testCannotComputeCallback(self):
+        response = wit.send_cannot_compute_helper_callback(recipient_id)
         self.assertEqual(response.status_code, 200)
