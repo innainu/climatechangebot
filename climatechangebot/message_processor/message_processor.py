@@ -7,7 +7,6 @@
 
     TO DO:
         - Cannot compute: should have a helper call back button and "View trending"
-        - Write Tests for message processor
         - Make bot conversational using api.ai
         - Build out Wit.ai search functionaility
 
@@ -50,7 +49,7 @@ class WitParser(object):
     """
         Gets entities from wit.ai
 
-        - each entity gets a confidence value from 0 to 1. do something with this?
+        - each entity gets a confidence value from 0 to 1.
             "1 is extremely confident. Lower than 0.5 is considered very low confidence."
 
         - can add intents using api:
@@ -122,8 +121,16 @@ class WitParser(object):
 
         return response
 
+    def send_cannot_compute_helper_callback(self):
+        pass
+
 
 class MessageProcessor(object):
+    """
+        Processes incoming messages from Facebook and directs functionaility
+            to WitParser or other parsing objects that send responses back to the user
+    """
+
     def __init__(self, bot, wit, config):
         self.BOT = bot
         self.WIT = wit
