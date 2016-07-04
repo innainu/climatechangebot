@@ -28,17 +28,17 @@ recipient_id = config.get('SECRET', 'fb_test_recipient_id')
 class TestMessageProcessor(unittest.TestCase):
 
     def testParseMessageAttachment(self):
-        message_with_attachment = {u'entry': [{u'messaging': [{u'timestamp': 1467596969812, u'message': {u'attachments': [{u'type': u'image', u'payload': {u'url': u'https://scontent.xx.fbcdn.net/t39.1997-6/p100x100/851586_126362014215262_1346191341_n.png?_nc_ad=z-m'}}], u'mid': u'mid.1467596969805:397b860aa7858f1995', u'seq': 699, u'sticker_id': 126362007548596}, u'recipient': {u'id': u'852964301474501'}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467596969833}], u'object': u'page'}
+        message_with_attachment = {u'entry': [{u'messaging': [{u'timestamp': 1467596969812, u'message': {u'attachments': [{u'type': u'image', u'payload': {u'url': u'https://scontent.xx.fbcdn.net/t39.1997-6/p100x100/851586_126362014215262_1346191341_n.png?_nc_ad=z-m'}}], u'mid': u'mid.1467596969805:397b860aa7858f1995', u'seq': 699, u'sticker_id': 126362007548596}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467596969833}], u'object': u'page'}
         response = msgproc.parse_messages(message_with_attachment)
         self.assertEqual(response.status_code, 200)
 
     def testParseMessageText(self):
-        message_with_text = {u'entry': [{u'messaging': [{u'timestamp': 1467598100136, u'message': {u'text': u'hey dude', u'mid': u'mid.1467598100129:66fdbf3421d1d4b345', u'seq': 706}, u'recipient': {u'id': u'852964301474501'}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467598100153}], u'object': u'page'}
+        message_with_text = {u'entry': [{u'messaging': [{u'timestamp': 1467598100136, u'message': {u'text': u'hey dude', u'mid': u'mid.1467598100129:66fdbf3421d1d4b345', u'seq': 706}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467598100153}], u'object': u'page'}
         response = msgproc.parse_messages(message_with_text)
         self.assertEqual(response.status_code, 200)
 
     def testParsePostback(self):
-        message_was_delivered = {u'entry': [{u'messaging': [{u'delivery': {u'mids': [u'mid.1467598101099:5647b9af327a489557'], u'seq': 708, u'watermark': 1467598101124}, u'timestamp': 0, u'recipient': {u'id': u'852964301474501'}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467598101352}], u'object': u'page'}
+        message_was_delivered = {u'entry': [{u'messaging': [{u'delivery': {u'mids': [u'mid.1467598101099:5647b9af327a489557'], u'seq': 708, u'watermark': 1467598101124}, u'timestamp': 0, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467598101352}], u'object': u'page'}
         response = msgproc.parse_messages(message_was_delivered)
         self.assertIsNone(response)
 
