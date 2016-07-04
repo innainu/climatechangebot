@@ -9,7 +9,7 @@
 """
 
 from nytimesarticle import articleAPI
-
+import random
 
 class NytimesApi(object):
     def __init__(self, key):
@@ -43,5 +43,5 @@ class NytimesApi(object):
             idx += 1
             if idx == num:
                 break
-
+        random.shuffle(articles)
         return articles
