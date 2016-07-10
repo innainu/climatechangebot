@@ -4,9 +4,9 @@ import logging
 
 from flask import Flask, request
 from flask import jsonify
-from rivescript import RiveScript
 from logging.handlers import RotatingFileHandler
 
+from rivescript import RiveScript
 from bot_interface.bot_interface import BotInterface
 from message_processor.message_processor import MessageProcessor, ExternalApiParser
 from nyt_interface.nyt_interface import NytimesApi

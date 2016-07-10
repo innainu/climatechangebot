@@ -6,10 +6,12 @@
 
 """
 
+import os
 import unittest
 import ConfigParser
 
 from config import Config
+from rivescript import RiveScript
 from bot_interface.bot_interface import BotInterface
 from message_processor.message_processor import ExternalApiParser, MessageProcessor
 from nyt_interface.nyt_interface import NytimesApi
@@ -19,8 +21,15 @@ config.read("local_test_config.cfg")
 
 bot = BotInterface(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
 nyt_api = NytimesApi(config.get('NYTIMES', 'nyt_key'))
+
+rive = RiveScript()
+rive.load_directory(
+    os.path.join(os.path.dirname(__file__), "..", "rivescripts")
+)
+rive.sort_replies()
+
 external_api_parser = ExternalApiParser(config.get('WITAI', 'wit_key'),
-                                        config.get('APIAI', 'api_ai_key'), bot, nyt_api)
+                                        rive, bot, nyt_api)
 
 Config = {'DEBUG': True, 'NYT_NUM_ARTICLES_RETURNED': 3}
 msgproc = MessageProcessor(bot, external_api_parser, Config)

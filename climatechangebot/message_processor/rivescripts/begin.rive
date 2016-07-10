@@ -9,8 +9,8 @@
 // ! var master = baruch
 
 // Debug variable
-! global debug = true
-// ! global debug = false
+// ! global debug = true
+! global debug = false
 
 // Bot Variables
 ! var name     = climatechangebot
