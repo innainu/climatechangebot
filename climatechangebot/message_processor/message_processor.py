@@ -18,7 +18,7 @@ import json
 
 from wit import Wit
 from wit.wit import WitError
-import apiai
+# import apiai
 
 from bot_interface.bot_interface import ButtonType, SenderActions
 
@@ -71,19 +71,20 @@ class ExternalApiParser(object):
             https://wit.ai/docs/http/20160330#get-intent-via-text-link
             - self.actions : this is for merge and context functionality
     """
-    def __init__(self, wit_key, api_ai_key, bot, nyt_api):
+    def __init__(self, wit_key, rive, bot, nyt_api):
         self.BOT = bot
         self.NYT_API = nyt_api
 
         self.wit_actions = {}
         self.wit_client = Wit(access_token=wit_key, actions=self.wit_actions)
         self.wit_empty_response = {'entities': []}
-
-        self.api_ai = apiai.ApiAI(api_ai_key)
-        self.API_AI_LANG = 'en'
-        self.api_ai_empty_response = {'result': {'fulfillment': {'speech': u''}}}
-
         self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
+
+        self.RIVE = rive
+
+        # self.api_ai = apiai.ApiAI(api_ai_key)
+        # self.API_AI_LANG = 'en'
+        # self.api_ai_empty_response = {'result': {'fulfillment': {'speech': u''}}}
 
     def api_ai_call(self, text):
         try:
@@ -157,7 +158,7 @@ class ExternalApiParser(object):
         return wit_parsed_message
 
     def take_external_action(self, message_text, recipient_id, num_articles=1,
-                             wit_parsed_message=None, api_ai_parsed_message=None):
+                             wit_parsed_message=None, rive_parsed_message=None):
         """
             Sends messages to the user.
             if Wit Parser finds intent, return on behalf of wit.ai
@@ -169,7 +170,8 @@ class ExternalApiParser(object):
                 recipient_id: str
                 num_articles: int
                 wit_parsed_message: WitParsedMessage
-                api_ai_parsed_message: ApiAIParsedMessage
+                api_ai_parsed_message: ApiAIParsedMessage - DEPRECATED
+                rive_parsed_message: str
 
             returns:
                 http response
@@ -217,14 +219,25 @@ class ExternalApiParser(object):
 
         # nyt api returned nothing or Wit couldn't parse user message
         # so call api.ai
-        if api_ai_parsed_message is None:
-            api_ai_parsed_message = self.api_ai_call(message_text)
+        # if api_ai_parsed_message is None:
+            # api_ai_parsed_message = self.api_ai_call(message_text)
 
-        if api_ai_parsed_message.response_text is not None:
-            response = self.BOT.send_text_message(recipient_id, api_ai_parsed_message.response_text)
+        # if api_ai_parsed_message.response_text is not None:
+            # response = self.BOT.send_text_message(recipient_id, api_ai_parsed_message.response_text)
+            # return response
+
+        if rive_parsed_message is None:
+            # get rivescript response
+            rive_parsed_message = self.RIVE.reply("localuser", message_text)
+
+            # # Get all the user's vars back out of the bot to include in the response.
+            # uservars = bot.get_uservars(username)
+
+        if rive_parsed_message != "UNDEFINED_RESPONSE":
+            response = self.BOT.send_text_message(recipient_id, rive_parsed_message)
             return response
 
-        # Wit.ai and API.ai returned nothing, so return a helper callback
+        # Wit.ai and Rive returned nothing, so return a helper callback
         response = self.send_cannot_compute_helper_callback(recipient_id)
         return response
 

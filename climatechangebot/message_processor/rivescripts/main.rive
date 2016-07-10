@@ -1,0 +1,24 @@
+// Main conversational rive functions
+
++ (@greeting)
+- Hey. 
+- Hello.
+- What's up?
+- Hey there.
+
++ (@yes|@no)
+- Ok, now why don't you tell me what kind of articles you want to read about?
+- Ok, what kind of articles would you like to read?
+- Ok, what are you interested in reading about?
+
++ (@greeting) <bot name>
+- What's up?
+- Hey, what can I do for you today?
+
++ [*] (sorry|apologize|apology) [*]
+- Please don't apologize.
+- Apologies are not necessary.
+- It did not bother me. Please continue.
+
++ [*] (@cursewords) [*]
+- That's not appropriate.

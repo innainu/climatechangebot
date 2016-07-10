@@ -144,38 +144,38 @@ class TestExternalWitApiParser(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestExternalApiAIParser(unittest.TestCase):
+# class TestExternalApiAIParser(unittest.TestCase):
 
-    def testApiAICall(self):
-        sample_text = "hi"
-        api_ai_parsed_message = external_api_parser.api_ai_call(sample_text)
-        self.assertIsNotNone(api_ai_parsed_message)
+#     def testApiAICall(self):
+#         sample_text = "hi"
+#         api_ai_parsed_message = external_api_parser.api_ai_call(sample_text)
+#         self.assertIsNotNone(api_ai_parsed_message)
 
-    def testApiAIStatus400(self):
-        sample_text = ""
-        api_ai_parsed_message = external_api_parser.api_ai_call(sample_text)
-        self.assertEqual(api_ai_parsed_message.response_text, None)
-        self.assertEqual(api_ai_parsed_message.action, None)
+#     def testApiAIStatus400(self):
+#         sample_text = ""
+#         api_ai_parsed_message = external_api_parser.api_ai_call(sample_text)
+#         self.assertEqual(api_ai_parsed_message.response_text, None)
+#         self.assertEqual(api_ai_parsed_message.action, None)
 
-    def testTakeActionApiAICall(self):
-        """
-            Test that API.ai call works after Wit.ai returns nothing
-        """
-        t = {u'_text': u'all', u'entities': {}, u'msg_id': u'd112c930-a596-41c6-9948-75c1a3de2234'}
-        wit_parsed_message = external_api_parser.parse_wit_response(t)
-        response = external_api_parser.take_external_action("who are you", recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
-        self.assertEqual(response.status_code, 200)
+#     def testTakeActionApiAICall(self):
+#         """
+#             Test that API.ai call works after Wit.ai returns nothing
+#         """
+#         t = {u'_text': u'all', u'entities': {}, u'msg_id': u'd112c930-a596-41c6-9948-75c1a3de2234'}
+#         wit_parsed_message = external_api_parser.parse_wit_response(t)
+#         response = external_api_parser.take_external_action("who are you", recipient_id,
+#                                                             wit_parsed_message=wit_parsed_message)
+#         self.assertEqual(response.status_code, 200)
 
-    def testTakeActionApiAIIntegration(self):
-        """
-            Tests that API.ai response text can be sent to user without making an API call to APi.ai
-        """
-        t = {u'_text': u'all', u'entities': {}, u'msg_id': u'd112c930-a596-41c6-9948-75c1a3de2234'}
-        t2 = {u'status': {u'errorType': u'success', u'code': 200}, u'timestamp': u'2016-07-04T20:19:44.497Z', u'sessionId': u'5fe142b5e1cd4b96a5c8eff478084601', u'id': u'cb076b89-23fc-4290-b0c9-d18965ba94cd', u'result': {u'parameters': {u'simplified': u'who are you'}, u'resolvedQuery': u'Who are you?', u'source': u'domains', u'score': 0.0, u'fulfillment': {u'speech': u'climatechangebot'}, u'action': u'smalltalk.person', u'metadata': {}}}
-        wit_parsed_message = external_api_parser.parse_wit_response(t)
-        api_ai_parsed_message = external_api_parser.parse_api_ai_response(t2)
-        response = external_api_parser.take_external_action("who are you", recipient_id,
-                                                            wit_parsed_message=wit_parsed_message,
-                                                            api_ai_parsed_message=api_ai_parsed_message)
-        self.assertEqual(response.status_code, 200)
+#     def testTakeActionApiAIIntegration(self):
+#         """
+#             Tests that API.ai response text can be sent to user without making an API call to APi.ai
+#         """
+#         t = {u'_text': u'all', u'entities': {}, u'msg_id': u'd112c930-a596-41c6-9948-75c1a3de2234'}
+#         t2 = {u'status': {u'errorType': u'success', u'code': 200}, u'timestamp': u'2016-07-04T20:19:44.497Z', u'sessionId': u'5fe142b5e1cd4b96a5c8eff478084601', u'id': u'cb076b89-23fc-4290-b0c9-d18965ba94cd', u'result': {u'parameters': {u'simplified': u'who are you'}, u'resolvedQuery': u'Who are you?', u'source': u'domains', u'score': 0.0, u'fulfillment': {u'speech': u'climatechangebot'}, u'action': u'smalltalk.person', u'metadata': {}}}
+#         wit_parsed_message = external_api_parser.parse_wit_response(t)
+#         api_ai_parsed_message = external_api_parser.parse_api_ai_response(t2)
+#         response = external_api_parser.take_external_action("who are you", recipient_id,
+#                                                             wit_parsed_message=wit_parsed_message,
+#                                                             api_ai_parsed_message=api_ai_parsed_message)
+#         self.assertEqual(response.status_code, 200)

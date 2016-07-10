@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+import os
 import logging
-from logging.handlers import RotatingFileHandler
 
 from flask import Flask, request
 from flask import jsonify
+from rivescript import RiveScript
+from logging.handlers import RotatingFileHandler
 
 from bot_interface.bot_interface import BotInterface
 from message_processor.message_processor import MessageProcessor, ExternalApiParser
@@ -17,7 +19,15 @@ app.config.from_pyfile("local.cfg")
 
 bot = BotInterface(app.config['FB_API_VERSION'], app.config['FB_ACCESS_TOKEN'])
 nyt_api = NytimesApi(app.config['NYT_KEY'])
-external_api_parser = ExternalApiParser(app.config['WIT_KEY'], app.config['API_AI_KEY'], bot, nyt_api)
+
+rive = RiveScript()
+rive.load_directory(
+    os.path.join(os.path.dirname(__file__), "message_processor", "rivescripts")
+)
+rive.sort_replies()
+
+# external_api_parser = ExternalApiParser(app.config['WIT_KEY'], app.config['API_AI_KEY'], bot, nyt_api)
+external_api_parser = ExternalApiParser(app.config['WIT_KEY'], rive, bot, nyt_api)
 msgproc = MessageProcessor(bot, external_api_parser, app.config)
 
 
