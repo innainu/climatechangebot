@@ -185,6 +185,7 @@
 ! array yes        = yes yeah yep yup ya yea
 ! array no         = no nah nope nay
 ! array greeting   = hey hello yo holla howdy hi heyo heyy
-^ hey yo|what is up|wassup|sup
-! array cursewords = fuck shit asshole fucker shit damn bitch
+^ hey yo|what is up|wassup|sup|whatsup
+! array cursewords = fuck shit asshole fucker shit damn bitch stupid
 ^ shut up
+! array interjection = ok|ok so|so

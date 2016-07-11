@@ -15,10 +15,16 @@
 - What's up?
 - Hey, what can I do for you today?
 
++ what is my name
+- Your first name is <get first_name>.
+
++ (@interjection)
+- OK
+- OK so
+
 + [*] (sorry|apologize|apology) [*]
 - Please don't apologize.
 - Apologies are not necessary.
-- It did not bother me. Please continue.
 
 + [*] (@cursewords) [*]
 - That's not appropriate.

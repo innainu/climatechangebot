@@ -11,6 +11,7 @@
         - Make caching of messages more sophisticated
 """
 
+import time
 import random
 import bot_response_text
 import response_dicts
@@ -20,6 +21,7 @@ from wit import Wit
 from wit.wit import WitError
 # import apiai
 
+from models.user import User
 from bot_interface.bot_interface import ButtonType, SenderActions
 
 
@@ -71,7 +73,7 @@ class ExternalApiParser(object):
             https://wit.ai/docs/http/20160330#get-intent-via-text-link
             - self.actions : this is for merge and context functionality
     """
-    def __init__(self, wit_key, rive, bot, nyt_api):
+    def __init__(self, wit_key, rive, bot, nyt_api, mongo):
         self.BOT = bot
         self.NYT_API = nyt_api
 
@@ -81,6 +83,8 @@ class ExternalApiParser(object):
         self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH = 0.5
 
         self.RIVE = rive
+
+        self.MONGO = mongo
 
         # self.api_ai = apiai.ApiAI(api_ai_key)
         # self.API_AI_LANG = 'en'
@@ -177,9 +181,46 @@ class ExternalApiParser(object):
                 http response
         """
 
+        # Search RIVE for a valid response
+        if rive_parsed_message is None:
+            # get user info from the db
+            user = User()
+            user_dict = self.MONGO.db.users.find_one({'recipient_id': recipient_id})
+
+            if user_dict is None:
+                # get user information from Facebook
+                fb_user_profile_info = self.BOT.get_user_profile_info(recipient_id)
+                user.set_user_dict(recipient_id, fb_user_profile_info)
+                user.user_dict['user_vars']['created_timestamp'] = int(time.time())
+
+                # write the user information to our database
+                self.MONGO.db.users.insert_one(user.user_dict)
+                user_dict = user.user_dict
+            else:
+                user.user_dict = user_dict
+
+            # give rivescript our user_vars
+            for key, value in user_dict['user_vars'].items():
+                self.RIVE.set_uservar(recipient_id, key, value)
+
+            # get the rivescript response
+            rive_parsed_message = self.RIVE.reply(recipient_id, message_text)
+
+            # get all the user vars back out of the RIVE to insert into DB
+            new_user_vars = self.RIVE.get_uservars(recipient_id)
+            user.update_user_vars(new_user_vars)
+            self.MONGO.db.users.update({'recipient_id': recipient_id}, user.user_dict)
+            print('New user vars are: ', user.user_dict)
+
+        if rive_parsed_message != "UNDEFINED_RESPONSE":
+            response = self.BOT.send_text_message(recipient_id, rive_parsed_message)
+            return response
+
+        # Rive had UNDEFINED_RESPONSE, so let's search WIT.AI for a response
         if wit_parsed_message is None:
             wit_parsed_message = self.wit_api_call(message_text)
 
+        # Parse the WIT.AI response
         if wit_parsed_message.intent and wit_parsed_message.intent[0] == 'search_article' \
                 and wit_parsed_message.intent[1] > self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH \
                 and wit_parsed_message.has_at_least_one_entity():
@@ -194,6 +235,7 @@ class ExternalApiParser(object):
                 location = sorted(wit_parsed_message.locations, key=lambda x: x[1], reverse=True)[0]
                 nyt_query_string += " in " + location[0]
 
+            # Get NYT articles to send to user
             nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
 
             template_elements = []
@@ -211,7 +253,7 @@ class ExternalApiParser(object):
                     )
                 )
 
-            # if nyt api returns something
+            # if NYT api returns valid articles, then send them to the user
             if len(template_elements) > 0:
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
@@ -226,18 +268,7 @@ class ExternalApiParser(object):
             # response = self.BOT.send_text_message(recipient_id, api_ai_parsed_message.response_text)
             # return response
 
-        if rive_parsed_message is None:
-            # get rivescript response
-            rive_parsed_message = self.RIVE.reply("localuser", message_text)
-
-            # # Get all the user's vars back out of the bot to include in the response.
-            # uservars = bot.get_uservars(username)
-
-        if rive_parsed_message != "UNDEFINED_RESPONSE":
-            response = self.BOT.send_text_message(recipient_id, rive_parsed_message)
-            return response
-
-        # Wit.ai and Rive returned nothing, so return a helper callback
+        # Wit.ai and Rive couldn't compute a valid response, so return a helper callback
         response = self.send_cannot_compute_helper_callback(recipient_id)
         return response
 

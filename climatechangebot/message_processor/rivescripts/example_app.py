@@ -20,6 +20,7 @@ bot.sort_replies()
 
 app = Flask(__name__)
 
+
 @app.route("/reply", methods=["POST"])
 def reply():
     """Fetch a reply from RiveScript.
@@ -64,6 +65,7 @@ def reply():
         "reply": reply,
         "vars": uservars,
     })
+
 
 @app.route("/")
 @app.route("/<path:path>")

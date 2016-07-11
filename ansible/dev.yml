@@ -9,6 +9,7 @@
   roles:
     - common
     - python
+    - db
     - { role: gunicorn, autostart: false, enabled: false }
     - { role: nginx, use_ssl: false, enabled: false }
 

@@ -4,6 +4,7 @@ import logging
 
 from flask import Flask, request
 from flask import jsonify
+from flask.ext.pymongo import PyMongo
 from logging.handlers import RotatingFileHandler
 
 from rivescript import RiveScript
@@ -13,6 +14,7 @@ from nyt_interface.nyt_interface import NytimesApi
 
 
 app = Flask(__name__)
+mongo = PyMongo(app)
 
 app.config.from_object("config.DevelopmentConfig")
 app.config.from_pyfile("local.cfg")
@@ -27,7 +29,7 @@ rive.load_directory(
 rive.sort_replies()
 
 # external_api_parser = ExternalApiParser(app.config['WIT_KEY'], app.config['API_AI_KEY'], bot, nyt_api)
-external_api_parser = ExternalApiParser(app.config['WIT_KEY'], rive, bot, nyt_api)
+external_api_parser = ExternalApiParser(app.config['WIT_KEY'], rive, bot, nyt_api, mongo)
 msgproc = MessageProcessor(bot, external_api_parser, app.config)
 
 
@@ -62,13 +64,14 @@ def not_found(error):
                    message="Not Found"), 404
 
 
-# @app.errorhandler(Exception)
-# def unhandled_exception(e):
-#     # logs any unhandled errors in our code, and returns 500
-#     app.logger.error('Unhandled Exception: %s', (e))
-#     return jsonify(response={'success': False},
-#                    status=500,
-#                    message="Internal Server Error"), 500
+if not app.config['DEBUG']:
+    @app.errorhandler(Exception)
+    def unhandled_exception(e):
+        # logs any unhandled errors in our code, and returns 500
+        app.logger.error('Unhandled Exception: %s', (e))
+        return jsonify(response={'success': False},
+                       status=500,
+                       message="Internal Server Error"), 500
 
 
 def success(status=200, message=''):

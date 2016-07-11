@@ -66,7 +66,7 @@
 
 + what color are your eyes
 - I have <bot eyes> eyes.
-- {sentence}<bot eyes>{/sentence}.
+- {sentence}<bot eyes> of course.{/sentence}.
 
 + what do you look like
 - I have <bot eyes> eyes and <bot hairlen> <bot hair> hair.
