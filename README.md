@@ -18,15 +18,16 @@ $ python app.py
 Tutorial: https://api.mongodb.com/python/current/tutorial.html
 
 ```
-> from pymongo import MongoClient
-> client = MongoClient()
-> client.database_names()
-> db = client.app
-> db.users.find_one()
+from pymongo import MongoClient
+client = MongoClient()
+client.database_names()
+mongo = client.app
+mongo.db.users.find_one()
 ```
 
 ## To do:
 
-1. Consider installing better mongo Ansible role: https://galaxy.ansible.com/greendayonfire/mongodb/
+1. Write tests for User() and for DB read-writes
 2. Build more RiveScripts
 3. Push to prod
+4. Consider installing better mongo Ansible role: https://galaxy.ansible.com/greendayonfire/mongodb/

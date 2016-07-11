@@ -15,7 +15,6 @@ import time
 import random
 import bot_response_text
 import response_dicts
-import json
 
 from wit import Wit
 from wit.wit import WitError
@@ -73,6 +72,7 @@ class ExternalApiParser(object):
             https://wit.ai/docs/http/20160330#get-intent-via-text-link
             - self.actions : this is for merge and context functionality
     """
+
     def __init__(self, wit_key, rive, bot, nyt_api, mongo):
         self.BOT = bot
         self.NYT_API = nyt_api
@@ -90,38 +90,38 @@ class ExternalApiParser(object):
         # self.API_AI_LANG = 'en'
         # self.api_ai_empty_response = {'result': {'fulfillment': {'speech': u''}}}
 
-    def api_ai_call(self, text):
-        try:
-            api_ai_request = self.api_ai.text_request()
-            api_ai_request.lang = self.API_AI_LANG
-            api_ai_request.query = text
-            api_ai_response = json.loads(api_ai_request.getresponse().read())
-            status_code = api_ai_response['status']['code']
-            if status_code != 200:
-                api_ai_response = self.api_ai_empty_response
+    # def api_ai_call(self, text):
+    #     try:
+    #         api_ai_request = self.api_ai.text_request()
+    #         api_ai_request.lang = self.API_AI_LANG
+    #         api_ai_request.query = text
+    #         api_ai_response = json.loads(api_ai_request.getresponse().read())
+    #         status_code = api_ai_response['status']['code']
+    #         if status_code != 200:
+    #             api_ai_response = self.api_ai_empty_response
 
-        except Exception as e:
-            print(e)
-            api_ai_response = self.api_ai_empty_response
+    #     except Exception as e:
+    #         print(e)
+    #         api_ai_response = self.api_ai_empty_response
 
-        api_ai_parsed_message = self.parse_api_ai_response(api_ai_response)
-        return api_ai_parsed_message
+    #     api_ai_parsed_message = self.parse_api_ai_response(api_ai_response)
+    #     return api_ai_parsed_message
 
-    def parse_api_ai_response(self, api_ai_response):
-        api_ai_parsed_message = ApiAIParsedMessage()
-        api_ai_result = api_ai_response['result']
+    # def parse_api_ai_response(self, api_ai_response):
+    #     api_ai_parsed_message = ApiAIParsedMessage()
+    #     api_ai_result = api_ai_response['result']
 
-        if 'action' in api_ai_result:
-            api_ai_parsed_message.action = api_ai_result['action']
-        else:
-            api_ai_parsed_message.action = None
+    #     if 'action' in api_ai_result:
+    #         api_ai_parsed_message.action = api_ai_result['action']
+    #     else:
+    #         api_ai_parsed_message.action = None
 
-        # the following keys are always included, empty if there is no response.
-        if 'fulfillment' in api_ai_result and 'speech' in api_ai_result['fulfillment']\
-                and len(api_ai_result['fulfillment']['speech']) > 0:
-            api_ai_parsed_message.response_text = api_ai_result['fulfillment']['speech']
+    #     # the following keys are always included, empty if there is no response.
+    #     if 'fulfillment' in api_ai_result and 'speech' in api_ai_result['fulfillment']\
+    #             and len(api_ai_result['fulfillment']['speech']) > 0:
+    #         api_ai_parsed_message.response_text = api_ai_result['fulfillment']['speech']
 
-        return api_ai_parsed_message
+    #     return api_ai_parsed_message
 
     def wit_api_call(self, text):
         try:
@@ -187,11 +187,12 @@ class ExternalApiParser(object):
             user = User()
             user_dict = self.MONGO.db.users.find_one({'recipient_id': recipient_id})
 
+            print('User dict is: ', user_dict)
+
             if user_dict is None:
                 # get user information from Facebook
                 fb_user_profile_info = self.BOT.get_user_profile_info(recipient_id)
-                user.set_user_dict(recipient_id, fb_user_profile_info)
-                user.user_dict['user_vars']['created_timestamp'] = int(time.time())
+                user.set_user_dict(recipient_id, fb_user_profile_info, timestamp=int(time.time()))
 
                 # write the user information to our database
                 self.MONGO.db.users.insert_one(user.user_dict)
@@ -200,8 +201,9 @@ class ExternalApiParser(object):
                 user.user_dict = user_dict
 
             # give rivescript our user_vars
-            for key, value in user_dict['user_vars'].items():
-                self.RIVE.set_uservar(recipient_id, key, value)
+            if user_dict.get('user_vars'):
+                for key, value in user_dict['user_vars'].items():
+                    self.RIVE.set_uservar(recipient_id, key, value)
 
             # get the rivescript response
             rive_parsed_message = self.RIVE.reply(recipient_id, message_text)
@@ -210,6 +212,7 @@ class ExternalApiParser(object):
             new_user_vars = self.RIVE.get_uservars(recipient_id)
             user.update_user_vars(new_user_vars)
             self.MONGO.db.users.update({'recipient_id': recipient_id}, user.user_dict)
+
             print('New user vars are: ', user.user_dict)
 
         if rive_parsed_message != "UNDEFINED_RESPONSE":

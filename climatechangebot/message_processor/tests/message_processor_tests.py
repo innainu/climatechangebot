@@ -7,6 +7,7 @@
 """
 
 import os
+import time
 import unittest
 import ConfigParser
 
@@ -15,6 +16,8 @@ from rivescript import RiveScript
 from bot_interface.bot_interface import BotInterface
 from message_processor.message_processor import ExternalApiParser, MessageProcessor
 from nyt_interface.nyt_interface import NytimesApi
+from pymongo import MongoClient
+
 
 config = ConfigParser.ConfigParser()
 config.read("local_test_config.cfg")
@@ -28,8 +31,10 @@ rive.load_directory(
 )
 rive.sort_replies()
 
+mongo = MongoClient()
+mongo = mongo.app
 external_api_parser = ExternalApiParser(config.get('WITAI', 'wit_key'),
-                                        rive, bot, nyt_api)
+                                        rive, bot, nyt_api, mongo)
 
 Config = {'DEBUG': True, 'NYT_NUM_ARTICLES_RETURNED': 3}
 msgproc = MessageProcessor(bot, external_api_parser, Config)
@@ -66,14 +71,16 @@ class TestExternalWitApiParser(unittest.TestCase):
              u'value': u'hi'}]}, u'msg_id': u'1d129086-f7a6-4d24-a4fd-205a497e304b'}
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("hi", recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionWitNoIntentNoEntity(self):
         t = {u'_text': u'all', u'entities': {}, u'msg_id': u'd112c930-a596-41c6-9948-75c1a3de2234'}
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("all", recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionWitNoEntity(self):
@@ -81,7 +88,8 @@ class TestExternalWitApiParser(unittest.TestCase):
              u'msg_id': u'e3ff388a-d8a7-436b-8499-94ba524c2d3a'}
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("what articles", recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionLowConfidence(self):
@@ -93,7 +101,8 @@ class TestExternalWitApiParser(unittest.TestCase):
              u'msg_id': u'0d006d5a-aebe-46af-8252-908bc6cf6713'}
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("what article futh", recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionMultipleEntities(self):
@@ -105,7 +114,8 @@ class TestExternalWitApiParser(unittest.TestCase):
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("articles about climate change and obama",
                                                             recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionMultipleLocation(self):
@@ -119,7 +129,8 @@ class TestExternalWitApiParser(unittest.TestCase):
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("I'm curious to see how climate change is affecting nyc and peru",
                                                             recipient_id,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionSearchAndLocation(self):
@@ -133,7 +144,8 @@ class TestExternalWitApiParser(unittest.TestCase):
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action('i want to see articles about obama in nyc',
                                                             recipient_id, num_articles=3,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testTakeActionNYTReturnsNone(self):
@@ -145,12 +157,70 @@ class TestExternalWitApiParser(unittest.TestCase):
         wit_parsed_message = external_api_parser.parse_wit_response(t)
         response = external_api_parser.take_external_action("blah blah",
                                                             recipient_id, num_articles=3,
-                                                            wit_parsed_message=wit_parsed_message)
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
         self.assertEqual(response.status_code, 200)
 
     def testCannotComputeCallback(self):
         response = external_api_parser.send_cannot_compute_helper_callback(recipient_id)
         self.assertEqual(response.status_code, 200)
+
+
+class TestExternalRiveApiParser(unittest.TestCase):
+
+    def testRiveCall(self):
+        response = rive.reply(recipient_id, "hey")
+        self.assertEqual(unicode, type(response))
+
+    def testRiveUndefinedResponse(self):
+        response = rive.reply(recipient_id, "alksdjf")
+        self.assertEqual("UNDEFINED_RESPONSE", response)
+
+    def testRiveUserDictFoundInDB(self):
+        mongo.db.users.delete_many({'recipient_id': recipient_id})
+        mongo.db.users.insert_one({'recipient_id': recipient_id})
+
+        # test that response is 200 if user exists in db
+        response = external_api_parser.take_external_action("hello", recipient_id, num_articles=3)
+        self.assertEqual(response.status_code, 200)
+        db_results = mongo.db.users.find({'recipient_id': recipient_id})
+        db_results = [r for r in db_results]
+
+        # make sure the record is unique in db
+        self.assertEqual(len(db_results), 1)
+        db_result = db_results[0]
+        print(db_result)
+
+        # test that record in db has the right keys
+        self.assertTrue('__history__' in db_result['user_vars'].keys())
+        self.assertTrue('__lastmatch__' in db_result['user_vars'].keys())
+        mongo.db.users.remove({'recipient_id': recipient_id})
+
+    def testRiveUserDictNotFoundInDB(self):
+
+        mongo.db.users.remove({'recipient_id': recipient_id})
+        db_result = mongo.db.users.find_one({'recipient_id': recipient_id})
+        self.assertIsNone(db_result)
+
+        # Test that response is 200 if user does not exist in db
+        response = external_api_parser.take_external_action("hello", recipient_id, num_articles=3)
+        self.assertEqual(response.status_code, 200)
+        db_result = mongo.db.users.find({'recipient_id': recipient_id})
+
+        # test that subsequent message with same user doesn't create new user in db
+        response = external_api_parser.take_external_action("hello", recipient_id, num_articles=3)
+        self.assertEqual(response.status_code, 200)
+        db_results = mongo.db.users.find({'recipient_id': recipient_id})
+        db_results = [r for r in db_results]
+        self.assertEqual(len(db_results), 1)
+
+        # test that the user has the right attributes in db
+        db_result = db_results[0]
+        self.assertTrue('__history__' in db_result['user_vars'].keys())
+        self.assertTrue('__lastmatch__' in db_result['user_vars'].keys())
+        self.assertEqual(db_result['user_vars']['first_name'], 'Baruch')
+
+        mongo.db.users.remove({'recipient_id': recipient_id})
 
 
 # class TestExternalApiAIParser(unittest.TestCase):
