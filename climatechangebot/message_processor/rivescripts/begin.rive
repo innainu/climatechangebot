@@ -187,5 +187,5 @@
 ! array greeting   = hey hello yo holla howdy hi heyo heyy
 ^ hey yo|what is up|wassup|sup|whatsup
 ! array cursewords = fuck shit asshole fucker shit damn bitch stupid
-^ shut up
+^ shut up|motherfucker|mofo
 ! array interjection = ok|ok so|so
