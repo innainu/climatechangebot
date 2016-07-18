@@ -3,7 +3,7 @@ import os
 import logging
 
 from flask import Flask, request
-from flask import jsonify
+from flask import jsonify, render_template
 from flask.ext.pymongo import PyMongo
 from logging.handlers import RotatingFileHandler
 
@@ -35,7 +35,13 @@ msgproc = MessageProcessor(bot, external_api_parser, app.config)
 
 @app.route("/")
 def index():
-    return success(status=200, message="Hello world from climatechangebot!")
+    return render_template('messenger.html')
+    # return success(status=200, message="Hello world from climatechangebot!")
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template('privacy.html')
 
 
 @app.route("/webhook/" + app.config['FB_WEBHOOK_URL'], methods=['GET', 'POST'])

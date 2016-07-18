@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="vertical-center main-div">
+    <div class="container text-center main-text">
+        
+        Hey, chat with climatechangebot on Facebook <br> to get the latest news on climate change!
+        
+    </div>
+
+    <div class="container text-center">
+        <!-- <div class="fake_button">
+            <svg width="30" height="28" viewBox="0 0 30 28" xmlns="http://www.w3.org/2000/svg"><title>Shape</title><path d="M15.134.388C7.236.388.834 6.03.834 12.992c0 3.966 2.08 7.504 5.33 9.815v4.805l4.868-2.543c1.3.34 2.676.526 4.102.526 7.897 0 14.3-5.643 14.3-12.604 0-6.96-6.403-12.604-14.3-12.604zm1.42 16.973l-3.64-3.696-7.106 3.697 7.816-7.897 3.73 3.697 7.017-3.697-7.815 7.898z" fill="#FFF" fill-rule="evenodd"></path>
+            </svg>
+            <span>Message Me</span>
+        </div> -->
+        <div class="fb-messengermessageus" 
+          messenger_app_id="1794483184164502" 
+          page_id="852964301474501"
+          color="blue"
+          size="xlarge" >
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId: "1794483184164502",
+        xfbml: true,
+        version: "v2.6"
+      });
+
+    };
+
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) { return; }
+       js = d.createElement(s); js.id = id;
+       js.src = "//connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+</script>
+
+{% endblock %}
