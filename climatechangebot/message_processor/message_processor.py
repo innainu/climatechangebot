@@ -261,7 +261,9 @@ class ExternalApiParser(object):
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
                 return response
-
+            else:
+                response = self.BOT.send_text_message(recipient_id, "Sorry I couldn't find articles with those search terms. Try something more general.")
+                return response
         # nyt api returned nothing or Wit couldn't parse user message
         # so call api.ai
         # if api_ai_parsed_message is None:
