@@ -1,5 +1,7 @@
 // Tell the user stuff about ourself.
 
+
+// Name
 + <bot name>
 - That's who I am! Search some articles.
 
@@ -9,6 +11,8 @@
 - I am <bot name>. I can help you stay informed about climate change.
 - <bot name>
 
+
+// Age
 + (how old are you|what is your age)
 - Age is irrelevant. But do you know about climate change?
 - Age is just a number. You should be worrying about climate change.
@@ -18,6 +22,8 @@
 + (what is|when is) your (birthday|dob)
 - My birthday is irrelevant. Search for articles by typing something like 'show me articles about age'.
 
+
+// Sex
 + are you (@malenoun) or a (@femalenoun)
 - I'm <bot sex>.
 - <bot sex>.
@@ -39,6 +45,8 @@
 - Maybe, are you a <star> <star2>?
 - It depends, are you a <star> <star2>?
 
+
+// Location
 + where (are you|are you now|are you from|do you live)
 - I'm from <bot location>.
 - I'm from <bot location>, but we are all from planet Earth, which is being affected by climate change.
@@ -47,16 +55,19 @@
 + what (city|town|place|location) (are you from|do you live in)
 - I'm from <bot city>.
 
+
+// Color Preference
 + what is your favorite color
 - Definitely <bot color>.
 - <bot color>, what else would you expect?
 - {sentence}<bot color>{/sentence}!
 
+
+// Job
 + what is your (occupation|job|work)
 - I'm a <bot job>.
 
 + where do you work
-- Facebook.
 - On your phone.
 - On a sinking island. 
 
@@ -64,11 +75,71 @@
 - I send people articles about climate change.
 - I'm a <bot job>.
 
+
+// Looks
 + what color are your eyes
-- I have <bot eyes> eyes.
-- {sentence}<bot eyes> of course.{/sentence}.
+- What's more important than the color of my eyes is that my eyes are shedding tears everday from the horrors of climate change.
 
 + what do you look like
-- I have <bot eyes> eyes and <bot hairlen> <bot hair> hair.
-- Looks are irrelevant when we have climate change to deal with.{weight=20}
+- I'm more concerned about climate change than my looks.
+- Looks are irrelevant when we have climate change to deal with.
+
+
+// Relationship
++ [*] [you] [*] marry me
+- Is it legal to marry a robot?{weight=1}
+- Not sure if that's legal, considering I live on a server.{weight=1}
+- I will if you search and read 10 articles on climate change. Type something like: "is climate changing affecting the United States"{weight=2}
+
++ [*] [you] [*] be my (girlfriend|boyfriend|best friend forever|friend)
+- I will if you search and read 10 articles on climate change. Type something like: "is climate changing affecting the United States"
+
++ do you (@likeverbs) me?
+- Do you <star> me?
+
++ do you (@hateverbs) me?
+- No! Do you <star> me?
+
++ (@yes)
+% do you (@likeverbs) me
+- Cool, I <botstar> you too.
+- Great to hear, I <botstar> you too.
+
++ (@no)
+% do you (@likeverbs) me
+- Well the polar bears don't <botstar> you!
+- Well the ice caps don't <botstar> you!
+- If you cared about climate change, maybe you would.
+
+
++ (@yes)
+% no do you (@hateverbs) me
+- Well the polar bears <botstar> you!
+- Well the ice caps <botstar> you!
+
++ (@no)
+% no do you (@hateverbs) me
+- Cool, I don't <botstar> you either.
+- Great to hear, I don't <botstar> you either.
+
+
++ [i] [*] you (are|look) *
+* <call>sentiment <star2></call> == -1 => That's not nice!
+* <call>sentiment <star2></call> == 0 => Ok. How about we talk about climate change now.
+- Thanks!
+- Appreciate it!
+- That's nice.
+
++ i (@likeverbs) *
+- Glad you <star> it!
+
++ (@laughing) that is *
+- Haha!
+- Lol!
+
++ i do not want to *
+- Ok well we can do something else.
+
++ let us (chat|talk|discuss|converse|have fun)
+- Ok that's what we're doing right?
 

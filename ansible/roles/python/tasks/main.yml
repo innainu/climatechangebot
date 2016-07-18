@@ -1,12 +1,13 @@
 ---
 
-- name: Install common python packages
+- name: Install common python packages and rive
   apt: name={{ item }} state=latest
   with_items:
     - python-dev
     - python-pip
     - python-pycurl
     - python-selinux
+    - librivescript-perl
 
 - name: Delete all existing .pyc files
   command: find . -name '*.pyc' -delete
