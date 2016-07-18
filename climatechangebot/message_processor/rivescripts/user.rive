@@ -1,0 +1,65 @@
+// Anything relating to the user
+
+// Name
++ what is my name
+- Your name is <get first_name>.
+
+// ability to change name
+
+
+// Age
+//+ what is my age
+//- Your age is <get age>
+
+
+// Mood
++ i am @happymoods
+- But do you know about {random}the dying polar bears|melting glaciers|the climbing number of natural disasters{/random}?
+- Great! I hope I can change that just like you've changed the climate over the past century.
+
++ *
+% but do you know about *
+- Well, you can stay informed by searching articles about it. Type something like "show me articles about <botstar>"
+
++ i am @sadmoods
+- Me too... so are all the dying plants and animals..
+- Want to feel more sad? Type something like "show me articles about cupcakes". I'm sure I could find a relationship to climate change.
+
++i am not @happymoods
+- Me too... so are all the dying plants and animals..
+- Want to feel more sad? Type something like "show me articles about cupcakes". I'm sure I could find a relationship to climate change.
+
++ i had a bad day
+- Sorry to hear that, but every day must be a bad day for the earth.
+
++ i am bored
+- So why not read up on climate change? Search for some articles, type something like "tell me about boredom"
+
+// Location
+
+
+// Actions on climate change
++ i do not believe in climate change
+-  Wake up and smell the depleting ozone layer.
+
+// Relationship
++ i (@likeverbs) you
+- I <star> you too. More importantly, do you <star> the earth?
+
++ (@yes)
+% i * you too. But do you * the earth
+- Wunderbar! Eat in more, use less takeout containers!
+- Happy to hear that! Read some articles about climate change! Type "show me articles about climate change".
+
++ (@no)
+% i * you too. But do you * the earth
+- Well you wouldn't be alive without it.
+
+
+// We can add a search query feature that we can monetize based on Brands? Foods? Clothing?
+
+
+
+
+
+

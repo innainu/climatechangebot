@@ -5,9 +5,6 @@
 	- {ok}    // An {ok} in the response means it's okay to get a real reply
 < begin
 
-// The Botmaster's Name
-// ! var master = baruch
-
 // Debug variable
 // ! global debug = true
 ! global debug = false
@@ -18,9 +15,6 @@
 ! var sex      = neither
 ! var location = New York
 ! var city     = NYC
-! var eyes     = green
-! var hair     = black
-! var hairlen  = short
 ! var color    = green
 ! var job      = climate change robot
 
@@ -80,6 +74,8 @@
 ! sub when's    = when is
 ! sub when're   = when are
 ! sub when'd    = when did
+! sub that's    = that is
+! sub let's     = let us
 ! sub y         = why
 ! sub u         = you
 ! sub ur        = your
@@ -108,10 +104,12 @@
 ! sub aman      = am an
 ! sub amon      = am on
 ! sub amnot     = am not
+! sub arigato   = arigatou
 ! sub realy     = really
 ! sub iamusing  = i am using
 ! sub amleaving = am leaving
 ! sub yuo       = you
+! sub luv       = love
 ! sub youre     = you are
 ! sub didnt     = did not
 ! sub ain't     = is not
@@ -122,11 +120,13 @@
 ! sub gtg       = got to go
 ! sub g2g       = got to go
 ! sub lyl       = love you lots
+! sub idc       = i do not care
 ! sub gf        = girlfriend
 ! sub g/f       = girlfriend
 ! sub bf        = boyfriend
 ! sub b/f       = boyfriend
 ! sub b/f/f     = best friend forever
+! sub bff       = best friend forever
 ! sub :-)       = smile
 ! sub :)        = smile
 ! sub :d        = grin
@@ -157,6 +157,7 @@
 ! sub (a)       = angel
 ! sub (h)       = cool
 ! sub 8-|       = nerdy
+! sub <3        = love
 
 
 // Person substitutions
@@ -174,18 +175,38 @@
 ! array femalenoun = female girl chick woman women lady babe mama mamasita
 ! array mennoun    = males guys boys dudes bois men gentlemen
 ! array womennoun  = females girls chicks women ladies babes
-! array lol        = lol lmao rofl haha hahaha
+
 // A lot of colors!
 ! array colors = red blue green yellow orange cyan fuchsia magenta
 ^ light red|dark red|light blue|dark blue|light yellow|dark yellow
 ^ light orange|dark orange|light cyan|dark cyan|light fuchsia
-^ dark fuchsia|light magenta|dark magenta
+^ dark fuchsia|light magenta|dark magenta|light gray|dark gray
 ^ black gray white silver
-^ light gray|dark gray
+
+// Interjection arrays
 ! array yes        = yes yeah yep yup ya yea
-! array no         = no nah nope nay
+^ i guess
+! array no         = no nah nope nay never
+^ not really
 ! array greeting   = hey hello yo holla howdy hi heyo heyy
-^ hey yo|what is up|wassup|sup|whatsup
-! array cursewords = fuck shit asshole fucker shit damn bitch stupid
-^ shut up|motherfucker|mofo
-! array interjection = ok|ok so|so
+^ hey yo
+! array whatsup = wassup sup whatsup wazzup wazup
+^ what is up|what is going on|how is it going|how are you
+! array cursewords = fuck shit asshole shit damn bitch stupid shitty shitster suck
+^ shut up|fucker|dick|ass|pussy|boobs|penis|suicide
+! array ok = ok|ok so|so|k|kk
+! array laughing = lol haha rofl lmao lolz hahaha ha
+! array thanks = thanks tu danke arigatou merci
+^thanks a lot|thanks a billion|thanks a million|thank you|thank you so much
+! array nice = nice cool awesome great fantastic amazing fabulous
+^ good stuff|awesome work
+
+// Mood arrays
+! array happymoods = happy elated great well
+^ doing well|good
+! array sadmoods = sad crying terrible bad
+! array notreal = fake bogus
+^ not real|a sham|a conspiracy|made up
+! array likeverbs = like|love|adore|liked|loved|enjoy|enjoyed
+! array hateverbs = hate|dislike|not like|not love|not adore|hated|disliked|not liked
+

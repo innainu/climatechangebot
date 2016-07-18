@@ -1,30 +1,109 @@
 // Main conversational rive functions
 
+
+// Greetings
 + (@greeting)
 - Hey. 
 - Hello.
-- What's up?
 - Hey there.
+- Hey <get first_name>!
+
++ (@greeting) <bot name>
+- Hey, what can I do for you today?
+
++ (@whatsup)
+- Hey, why don't you search some articles about climate change. Type "help" if you ever need any help.{weight=10}
+- Nothing much. Try asking me "show me articles about climate change" to stay informed.{weight=5}
+- Just thinking about the depleting ozone layer.{weight=1}
+- Sea levels are up.{weight=1}
+- Carbon emissions are up, so yea...{weight=1}
+- Air pollution doesn't affect me so, nothing much.{weight=1}
+- Just buying a reusable shopping bag so that I don't kill another sea turtle.{weight=1}
+
+
+// Interjections
++ (@laughing)
+- :){weight=10}
+- Glad you think I'm funny, now let's get serious about climate change.{weight=5}
+- I wouldn't be laughing if I were you. The planet is dying.{weight=1}
+
++ (@thanks)
+- No problem buddy!
+- No problem my friend.
+- Now try thanking the earth by recycling your plastic containers.
+
++ @thanks for *
+- My pleasure, will help you with {person}<star>{/person} whenever.
+
++ i do not care
+- Climate change is affecting us all, so maybe you should.
+- You really should...
+- Unless you're a robot like me, then you should probably care.
+
++ (@ok)
+- OK.
+- OK so...
+- Ok so what would you like to read about now?
+
++ (@nice)
+- Sure is, thanks.
+- Thanks!
+- Sure is! Want to read an article about it?
+- I agree.
+
+
+// Apologies
++ [*] (sorry|apologize|apology) [*]
+- Please don't apologize.
+- Apologies are not necessary.
+- I would feel sorry if I were you too.
+
+
+// Curse Words
++ [*] (@cursewords) [*]{weight=100}
+- That's not appropriate.{weight=10}
+- Watch your language there buddy!{weight=1}
+- That's not cool!{weight=1}
+
+
+// Questions about climate change
++ is climate change (real|true|happening|occuring|affecting me|the real deal)
+- Sure is!
+- You bet! You can read about it by telling me what kind of articles you want to see.
+- Is that still even a question these days amongst you humans?
+- Are you one of those annoying deniers?
+
+
++ is climate change (@notreal)
+- Hm, no.
+- I wish it was...
+- If only...
+
++ climate change is (@notreal)
+- Wake up and smell the depleting ozone layer.
+- Wake up and smell the rising carbon levels.
+- You must be sleeping under a boulder.
+
+
+// Help
++ [* you] help [me]
+- I can help you stay informed about climate change. Search for something like "Is the ozone layer getting depleted?"
+- I can help you stay informed about climate change. Search for something like "How are the corals doing?"
+
+
+// Yes or No
++ @no @thanks
+- Ok, cool with me.
+- No problem.
 
 + (@yes|@no)
 - Ok, now why don't you tell me what kind of articles you want to read about?
 - Ok, what kind of articles would you like to read?
 - Ok, what are you interested in reading about?
 
-+ (@greeting) <bot name>
-- What's up?
-- Hey, what can I do for you today?
++ @yes please
+- Will do.
+- Sure thing.
 
-+ what is my name
-- Your first name is <get first_name>.
 
-+ (@interjection)
-- OK
-- OK so
 
-+ [*] (sorry|apologize|apology) [*]
-- Please don't apologize.
-- Apologies are not necessary.
-
-+ [*] (@cursewords) [*]
-- That's not appropriate.
