@@ -33,17 +33,17 @@ mongo.db.users.find_one()
 - Other settings: https://www.digitalocean.com/community/tutorials/additional-recommended-steps-for-new-ubuntu-14-04-servers
 - Clone the repository into home directory
 - Install Ansible
-    - ```ansible/install.sh```
+    - `ansible/install.sh`
 - Copy config to remote
-    - ```scp local.cfg user@remote:climatechangebot/climatechangebot```
+    - `scp local.cfg user@remote:climatechangebot/climatechangebot`
 - Create SSL: https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-14-04
     - https://certbot.eff.org/#ubuntutrusty-nginx
     - Set SSL to renew automatically:
         - `sudo crontab -e`
-        - ```0 0 1 * * ./certbot-auto renew --quiet --no-self-upgrade```
+        - `0 0 1 * * ./certbot-auto renew --quiet --no-self-upgrade`
 - Run nosetests
 - Run Ansible Playbook
-    - ```ansible-playbook -c local ansible/prod.yml```
+    - `ansible-playbook -c local ansible/prod.yml`
 - Logs
     - `tail -f /var/log/gunicorn/gunicorn-error.log`
 
