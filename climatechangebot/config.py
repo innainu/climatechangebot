@@ -31,19 +31,11 @@ class Config(object):
 
 
 class ProductionConfig(Config):
+    DEVELOPMENT = False
     DEBUG = False
-
-
-class StagingConfig(Config):
-    DEVELOPMENT = True
-    DEBUG = True
 
 
 class DevelopmentConfig(Config):
     # ngrok http -host-header=rewrite 192.168.33.11:80
     DEVELOPMENT = True
     DEBUG = True
-
-
-class TestingConfig(Config):
-    TESTING = True
