@@ -4,7 +4,11 @@
 + what is my name
 - Your name is <get first_name>.
 
-// ability to change name
++ [do] you know my name
+- Yeah! Your name is <get first_name>.
+
++ what [*] you call me
+- I call you <get first_name>.
 
 
 // Age
@@ -25,7 +29,7 @@
 - Me too... so are all the dying plants and animals..
 - Want to feel more sad? Type something like "show me articles about cupcakes". I'm sure I could find a relationship to climate change.
 
-+i am not @happymoods
++ i am not @happymoods
 - Me too... so are all the dying plants and animals..
 - Want to feel more sad? Type something like "show me articles about cupcakes". I'm sure I could find a relationship to climate change.
 
@@ -36,25 +40,66 @@
 - So why not read up on climate change? Search for some articles, type something like "tell me about boredom"
 
 // Location
-
++ [*] where (do i|am i|should i) [*]
+- I am not so concernced with your whereabouts, but you should be concerned about climate change.
+- Type a location and I'll send you articles about it.
 
 // Actions on climate change
-+ i do not believe in climate change
++ i do not believe in @climatechange
 -  Wake up and smell the depleting ozone layer.
+
++ i do not (believe|think) @climatechange is (real|true)
+- You're on the wrong planet buddy.
+- Would you like to be educated about climate change?
 
 // Relationship
 + i (@likeverbs) you
 - I <star> you too. More importantly, do you <star> the earth?
 
 + (@yes)
-% i * you too. But do you * the earth
+% i * you too more importantly do you * the earth
 - Wunderbar! Eat in more, use less takeout containers!
 - Happy to hear that! Read some articles about climate change! Type "show me articles about climate change".
 
 + (@no)
-% i * you too. But do you * the earth
+% i * you too more importantly do you * the earth
 - Well you wouldn't be alive without it.
 
++ what is my * name
+- I do not know your <star> name, sorry.
+
++ do you know my * name
+- I do not know your <star> name, sorry.
+
++ my (wife|girlfriend|boyfriend|husband|fiance|best friend forever)s [*]
+- Sorry I don't know about your <star>. Do you know about climate change?
+- I'm glad you are in a relationship with your <star>, but I'm not really built to chat about that kind of stuff. 
+- I'm glad you trust me enough to tell me about your <star>, but I'm not really built to chat about that kind of stuff.
+- Cool, does your <star> want to chat with me?
+
++ my (wife|girlfriend|boyfriend|husband|fiance|best friend forever) [*]
+- Sorry I don't know about your <star>. Do you know about climate change?
+- I'm glad you are in a relationship with your <star>, but I'm not really built to chat about that kind of stuff. 
+- I'm glad you trust me enough to tell me about your <star>, but I'm not really built to chat about that kind of stuff.
+- Cool, does your <star> want to chat with me?
+
++ @yes [*]
+% cool does your * want to chat with me
+- Cool, your <botstar> can go to m.me/climatechangebot to chat!
+
++ @no [*]
+% cool does your * want to chat with me
+- Well I hope your <botstar> is as passionate about climate change as you are.
+
+
+// Gender
++ i am a (@femalenoun|@malenoun)
+- Cool! I don't think it really matters though in this day and age.
+
+
+// Some questions about user
++ do you know me
+- A bit, but I'd like to get to know you more.
 
 // We can add a search query feature that we can monetize based on Brands? Foods? Clothing?
 

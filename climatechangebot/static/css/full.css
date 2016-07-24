@@ -31,8 +31,9 @@ body {
 }
 
 .main-div {
-    top: 30%;
     position: absolute;
+    top: 30%;
+    left: 50%;
 }
 
 .main-text {
@@ -41,14 +42,3 @@ body {
     font-family: sans-serif;
     font-weight: 800;
 }
-
-/*.fake_button {
-    padding: 8px 12px;
-    background: #0084ff;
-    border-radius: 11px;
-    display: inline-block;
-    z-index: 2;
-    pointer-events: none;
-    position: relative;
-    text-align: center;
-}*/

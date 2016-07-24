@@ -29,44 +29,38 @@ FB_MESSAGING_URL = (
 ).format(Config.FB_API_VERSION, config.get('SECRET', 'fb_access_token'))
 
 
+def create_background_greeting_message():
+    # only appears for new users
+    message_json = {
+        "setting_type": "greeting",
+        "greeting": {
+            "text": "Start chatting with me about climate change. Say hi!"
+        }
+    }
+
+    response = requests.post(FB_MESSAGING_URL,
+                             json=message_json,
+                             headers={"Content-Type": "application/json"})
+
+    print(response.content)
+    if response.status_code == 200:
+        print('Success CREATE!!')
+    else:
+        raise Exception('Message update failed!')
+
+
 def create_welcome_message():
 
     message_json = {
         "setting_type": "call_to_actions",
         "thread_state": "new_thread",
         "call_to_actions": [{
-            "message": {
-                "attachment": {
-                    "type": "template",
-                    "payload": {
-                        "template_type": "generic",
-                        "elements": [
-                            {
-                                "title": "Welcome to the climatechangebot thread!",
-                                "item_url": "https://www.facebook.com/climatechangebot/",
-                                "image_url": "https://scontent-lga3-1.xx.fbcdn.net/t31.0-8/13422214_852984424805822_3203580027459777074_o.jpg",
-                                "subtitle": "Stay informed about climate change so that we can make a difference!",
-                                # "buttons":[
-                                #   {
-                                #     "type": "web_url",
-                                #     "title": "View Website",
-                                #     "url": "https://www.petersbowlerhats.com"
-                                #   },
-                                #   {
-                                #     "type": "postback",
-                                #     "title": "Start Chatting",
-                                #     "payload": "DEVELOPER_DEFINED_PAYLOAD"
-                                #   }
-                                # ]
-                            }
-                        ]
-                    }
-                }
-            }
+            "payload": "WELCOME_MESSAGE_POSTBACK"
         }]
     }
 
-    response = requests.post(FB_MESSAGING_URL,
+    response = requests.post(
+        FB_MESSAGING_URL,
         json=message_json,
         headers={"Content-Type": "application/json"})
 
@@ -84,7 +78,8 @@ def delete_welcome_message():
         "call_to_actions": []
     }
 
-    response = requests.post(FB_MESSAGING_URL,
+    response = requests.post(
+        FB_MESSAGING_URL,
         json=message_json,
         headers={"Content-Type": "application/json"})
 
@@ -97,10 +92,14 @@ def delete_welcome_message():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Change welcome message.')
     parser.add_argument('--action', type=str,
-                        help='should I create or delete welcome message?')
+                        help="either delete create or background")
 
     args = parser.parse_args()
     if args.action == "delete":
         delete_welcome_message()
-    else:
+    elif args.action == "background":
+        create_background_greeting_message()
+    elif args.action == "create":
         create_welcome_message()
+    else:
+        print("No action was recognized...nothing was executed")
