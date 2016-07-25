@@ -6,8 +6,6 @@
 
 
     TO DO:
-        - Remove dependencies on API.ai with home grown conversational toolkit
-        - Build out Wit.ai search functionaility
         - Make caching of messages more sophisticated
 """
 
@@ -21,7 +19,6 @@ from textblob import TextBlob
 
 from wit import Wit
 from wit.wit import WitError
-# import apiai
 
 from models.user import User
 from bot_interface.bot_interface import ButtonType, SenderActions
@@ -42,8 +39,13 @@ class FacebookMessage(object):
 
         if message.get('attachments'):
             self.message_attachments = message['attachments']
+            if message.get('sticker_id'):
+                self.message_sticker_id = message['sticker_id']
+            else:
+                self.message_sticker_id = None
         else:
             self.message_attachments = None
+            self.message_sticker_id = None
 
 
 class ApiAIParsedMessage(object):
@@ -300,6 +302,35 @@ class ExternalApiParser(object):
 
         return response
 
+    def send_welcome_message(self, recipient_id):
+        """
+            Sends the user different welcome messages depending on whether
+                they exist in our database or not
+        """
+
+        user_dict = self.MONGO.db.users.find_one({'recipient_id': recipient_id})
+
+        if user_dict is None:
+            # The first welcome_message is a template
+            welcome_message = self.BOT.create_generic_payload_message(
+                recipient_id,
+                attachment=bot_response_text.welcome_messages_new_user[0])
+            response = self.BOT._send(welcome_message)
+
+            # The rest of the welcome_messages are plain text
+            for j in xrange(1, len(bot_response_text.welcome_messages_new_user)):
+                response = self.BOT.send_text_message(
+                    recipient_id,
+                    bot_response_text.welcome_messages_new_user[j]
+                )
+        else:
+            response = self.BOT.send_text_message(
+                recipient_id,
+                bot_response_text.welcome_back % user_dict["user_vars"]["first_name"]
+            )
+
+        return response
+
 
 class MessageProcessor(object):
     """
@@ -360,10 +391,8 @@ class MessageProcessor(object):
 
                     elif message.message_attachments:
                         self.BOT.send_sender_action(recipient_id, SenderActions.TYPING_ON.value)
-                        # send a random gif
-                        gif_attachment_url = self.get_rand_gif()
-                        response = self.BOT.send_image_payload_message(recipient_id,
-                                                                       image_url=gif_attachment_url)
+                        # Parse and send back image
+                        response = self.parse_and_respond_to_image_attachment(recipient_id, message)
                         self.BOT.send_sender_action(recipient_id, SenderActions.TYPING_OFF.value)
 
                 elif m.get('postback'):
@@ -426,8 +455,30 @@ class MessageProcessor(object):
 
     def postback_parser(self, recipient_id, postback_payload):
         response = None
+
         if postback_payload == "HELP_POSTBACK":
             response = self.BOT.send_text_message(recipient_id, bot_response_text.help_postback_text)
+        elif postback_payload == "WELCOME_MESSAGE_POSTBACK":
+            response = self.EXTERNAL_API_PARSER.send_welcome_message(recipient_id)
+        elif postback_payload == "TRENDING_POSTBACK":
+            pass
+
+        return response
+
+    def parse_and_respond_to_image_attachment(self, recipient_id, message):
+        sticker_id = message.message_sticker_id
+
+        if sticker_id is not None:
+            response = self.BOT.send_text_message(
+                recipient_id,
+                response_dicts.sticker_response['thumbs_up']
+            )
+        else:
+            gif_attachment_url = self.get_rand_gif()
+            response = self.BOT.send_image_payload_message(
+                recipient_id,
+                image_url=gif_attachment_url
+            )
 
         return response
 

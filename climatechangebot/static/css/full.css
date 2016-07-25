@@ -1,0 +1,44 @@
+/*
+ * Start Bootstrap - Full (http://startbootstrap.com/)
+ * Copyright 2013-2016 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
+ */
+
+body {
+    margin-top: 50px; /* Required margin for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+    background-color: #C5E3BF;
+}
+
+.navbar {
+    background-color: rgb(105, 102, 98);
+}
+
+.navbar-inverse {
+    border-color: rgb(105, 102, 98);
+}
+
+.navbar-inverse .navbar-brand {
+    color: #c1c5c3;
+}
+
+.full {
+    /*background: url('http://placehold.it/1920x1080') no-repeat center center fixed;*/
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    background-color: #C5E3BF;
+}
+
+.main-div {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+}
+
+.main-text {
+    color: #696662;
+    font-size: xx-large;
+    font-family: sans-serif;
+    font-weight: 800;
+}

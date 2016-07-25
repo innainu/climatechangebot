@@ -37,7 +37,7 @@ server {
 
   # nginx should serve up static files and never send to the WSGI server
   location /static {
-    alias {{ project_path }}/static;
+    alias {{ project_path }}/climatechangebot/static;
   }
 
   location / {

@@ -11,7 +11,7 @@
 + (@greeting) <bot name>
 - Hey, what can I do for you today?
 
-+ (@whatsup)
++ (@whatsup) [<bot name>|@malenoun|@femalenoun]
 - Hey, why don't you search some articles about climate change. Type "help" if you ever need any help.{weight=10}
 - Nothing much. Try asking me "show me articles about climate change" to stay informed.{weight=5}
 - Just thinking about the depleting ozone layer.{weight=1}
@@ -19,6 +19,31 @@
 - Carbon emissions are up, so yea...{weight=1}
 - Air pollution doesn't affect me so, nothing much.{weight=1}
 - Just buying a reusable shopping bag so that I don't kill another sea turtle.{weight=1}
+
+
+// Emojis 
++ (smile|smiley|grinning|joy|sweatsmile|wink|grin|laughing|satisfied) [*]
+- 😃
+- 😄
+- 😂
+- 😜
+- 🤖
+
++ wink
+- 😊
+
++ blush
+- 😉
+
++ (disappointed|worried|angry|rage|cry|persevere|frowning|anguished|fearful|weary|sleepy|tiredace|sob|scream|astonished|coldsweat)
+- That's how I feel about climate change. 😞🌊
+- That's how I feel about climate change. 😧🌊
+- That's how I feel about climate change. 😨🌪
+
++ earthemoji
+- 🌊🌎! 
+- 🌍!! 
+- 🌏!
 
 
 // Interjections
@@ -45,12 +70,43 @@
 - OK so...
 - Ok so what would you like to read about now?
 
-+ (@nice)
++ (@ok) stop
+- Sorry, I'll stop hopefully. Let's talk about climate change.
+
++ stop
+- Sorry, I'll stop hopefully. Let's talk about climate change.
+
++ oh is it
+- Yup!
+
++ [oh|ah|ohh|ahh|ok|so|really|such|super|uber] (@nice)
 - Sure is, thanks.
 - Thanks!
-- Sure is! Want to read an article about it?
+- Sure is!
 - I agree.
 
+// Thinking or Annoyance
+
++ (hm|hmm|hmmm|um|umm|err|uh|erm)
+- 👀
+- 🤓
+- 😬
+- 🍻
+
++ (hu|ugh|uhh)
+- 😬
+- 😰
+- 🌪🌎🌊
+
++ (hu|ugh|hm|hmm|hmmm|um|umm|er|erm|err|uhh|uh) @no
+- Ok let's talk about something else.
+- 😬
+- 😰
+
++ (hu|ugh|hm|hmm|hmmm|um|umm|er|erm|err|uhh|uh) @yes
+- I knew it!
+- 😬
+- 😅
 
 // Apologies
 + [*] (sorry|apologize|apology) [*]
@@ -67,19 +123,20 @@
 
 
 // Questions about climate change
-+ is climate change (real|true|happening|occuring|affecting me|the real deal)
++ is @climatechange (@real)
 - Sure is!
 - You bet! You can read about it by telling me what kind of articles you want to see.
 - Is that still even a question these days amongst you humans?
 - Are you one of those annoying deniers?
+- Sadly, yes. Try typing something like "How are the corals doing?" and I can send you some articles.
+- Yes it is, type something like "The ozone layer" to read about the specifics.
 
-
-+ is climate change (@notreal)
-- Hm, no.
++ is @climatechange (@notreal)
+- Hm, no. You should read some articles about it.
 - I wish it was...
 - If only...
 
-+ climate change is (@notreal)
++ @climatechange is (@notreal)
 - Wake up and smell the depleting ozone layer.
 - Wake up and smell the rising carbon levels.
 - You must be sleeping under a boulder.
@@ -87,7 +144,7 @@
 
 // Help
 + [* you] help [me]
-- I can help you stay informed about climate change. Search for something like "Is the ozone layer getting depleted?"
+- I can help you stay informed about climate change. Search for something like "Is the ozone layer depleting?"
 - I can help you stay informed about climate change. Search for something like "How are the corals doing?"
 
 
@@ -95,11 +152,13 @@
 + @no @thanks
 - Ok, cool with me.
 - No problem.
+- Not a problem.
 
 + (@yes|@no)
 - Ok, now why don't you tell me what kind of articles you want to read about?
 - Ok, what kind of articles would you like to read?
 - Ok, what are you interested in reading about?
+- Alright. Tell me what topic relating to climate change you'd like to read about.
 
 + @yes please
 - Will do.
