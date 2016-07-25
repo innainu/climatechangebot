@@ -193,6 +193,15 @@ class TestExternalWitApiParser(unittest.TestCase):
         response = external_api_parser.send_cannot_compute_helper_callback(recipient_id)
         self.assertEqual(response.status_code, 200)
 
+    def testTakeActionWitEntityLatest(self):
+        t = {u'_text': u'trending', u'entities': {u'intent': [{u'confidence': 0.9920363903041917, u'value': u'latest'}]},
+             u'msg_id': u'e3ff388a-d8a7-436b-8499-94ba524c2d3a'}
+        wit_parsed_message = external_api_parser.parse_wit_response(t)
+        response = external_api_parser.take_external_action("trending", recipient_id,
+                                                            wit_parsed_message=wit_parsed_message,
+                                                            rive_parsed_message="UNDEFINED_RESPONSE")
+        self.assertEqual(response.status_code, 200)
+
 
 class TestExternalRiveApiParser(unittest.TestCase):
 

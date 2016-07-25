@@ -131,7 +131,7 @@ class ExternalApiParser(object):
 
         return wit_parsed_message
 
-    def take_external_action(self, message_text, recipient_id, num_articles=1,
+    def take_external_action(self, message_text, recipient_id, num_articles=3,
                              wit_parsed_message=None, rive_parsed_message=None):
         """
             Sends messages to the user.
@@ -214,6 +214,20 @@ class ExternalApiParser(object):
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
                 return response
 
+        elif wit_parsed_message.intent and wit_parsed_message.intent[0] == 'latest' \
+                and wit_parsed_message.intent[1] > self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH:
+            #call return_trending_list function for intent = latest
+            nyt_response = self.NYT_API.return_trending_list()
+            template_elements = self.make_nyt_response_templates(nyt_response)
+            if len(template_elements) > 0:
+                response = self.BOT.send_text_message(recipient_id, "Here's the latest on climate change:")
+                response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+                return response
+
+            # no trending articles were returned!
+            response = self.BOT.send_text_message(recipient_id, u"Sorry, couldn't find anything trending in climate change today. Please check back tomorrow! \U0001f30e")
+            return response
+
         # Wit.ai and Rive couldn't compute a valid response
         # If the user searches keywords, not complex sentences, return NYT articles based on keywords
         # Else, return a helper callback
@@ -225,9 +239,8 @@ class ExternalApiParser(object):
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
                 return response
-        else:
-            response = self.send_cannot_compute_helper_callback(recipient_id)
-            return response
+        response = self.send_cannot_compute_helper_callback(recipient_id)
+        return response
 
     def extract_keywords(self, message_text):
         """
