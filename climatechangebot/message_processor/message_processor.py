@@ -15,6 +15,9 @@ import time
 import random
 import bot_response_text
 import response_dicts
+import pickle
+
+from textblob import TextBlob
 
 from wit import Wit
 from wit.wit import WitError
@@ -86,42 +89,7 @@ class ExternalApiParser(object):
 
         self.MONGO = mongo
 
-        # self.api_ai = apiai.ApiAI(api_ai_key)
-        # self.API_AI_LANG = 'en'
-        # self.api_ai_empty_response = {'result': {'fulfillment': {'speech': u''}}}
-
-    # def api_ai_call(self, text):
-    #     try:
-    #         api_ai_request = self.api_ai.text_request()
-    #         api_ai_request.lang = self.API_AI_LANG
-    #         api_ai_request.query = text
-    #         api_ai_response = json.loads(api_ai_request.getresponse().read())
-    #         status_code = api_ai_response['status']['code']
-    #         if status_code != 200:
-    #             api_ai_response = self.api_ai_empty_response
-
-    #     except Exception as e:
-    #         print(e)
-    #         api_ai_response = self.api_ai_empty_response
-
-    #     api_ai_parsed_message = self.parse_api_ai_response(api_ai_response)
-    #     return api_ai_parsed_message
-
-    # def parse_api_ai_response(self, api_ai_response):
-    #     api_ai_parsed_message = ApiAIParsedMessage()
-    #     api_ai_result = api_ai_response['result']
-
-    #     if 'action' in api_ai_result:
-    #         api_ai_parsed_message.action = api_ai_result['action']
-    #     else:
-    #         api_ai_parsed_message.action = None
-
-    #     # the following keys are always included, empty if there is no response.
-    #     if 'fulfillment' in api_ai_result and 'speech' in api_ai_result['fulfillment']\
-    #             and len(api_ai_result['fulfillment']['speech']) > 0:
-    #         api_ai_parsed_message.response_text = api_ai_result['fulfillment']['speech']
-
-    #     return api_ai_parsed_message
+        self.emojis = pickle.load(open("message_processor/unicode_emoji.pickle", "rb"))
 
     def wit_api_call(self, text):
         try:
@@ -187,8 +155,6 @@ class ExternalApiParser(object):
             user = User()
             user_dict = self.MONGO.db.users.find_one({'recipient_id': recipient_id})
 
-            print('User dict is: ', user_dict)
-
             if user_dict is None:
                 # get user information from Facebook
                 fb_user_profile_info = self.BOT.get_user_profile_info(recipient_id)
@@ -212,8 +178,6 @@ class ExternalApiParser(object):
             new_user_vars = self.RIVE.get_uservars(recipient_id)
             user.update_user_vars(new_user_vars)
             self.MONGO.db.users.update({'recipient_id': recipient_id}, user.user_dict)
-
-            print('New user vars are: ', user.user_dict)
 
         if rive_parsed_message != "UNDEFINED_RESPONSE":
             response = self.BOT.send_text_message(recipient_id, rive_parsed_message)
@@ -240,21 +204,7 @@ class ExternalApiParser(object):
 
             # Get NYT articles to send to user
             nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
-
-            template_elements = []
-            for nyt in nyt_response:
-
-                if nyt.get("image_url"):
-                    nyt_image_url = nyt["image_url"]
-                else:
-                    nyt_image_url = None
-
-                template_elements.append(
-                    self.BOT.create_generic_template_element(
-                        element_title=nyt["title"], element_item_url=nyt["web_url"],
-                        element_image_url=nyt_image_url, element_subtitle=nyt["abstract"]
-                    )
-                )
+            template_elements = self.make_nyt_response_templates(nyt_response)
 
             # if NYT api returns valid articles, then send them to the user
             if len(template_elements) > 0:
@@ -262,18 +212,79 @@ class ExternalApiParser(object):
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
                 return response
 
-        # nyt api returned nothing or Wit couldn't parse user message
-        # so call api.ai
-        # if api_ai_parsed_message is None:
-            # api_ai_parsed_message = self.api_ai_call(message_text)
+        # Wit.ai and Rive couldn't compute a valid response
+        # If the user searches keywords, not complex sentences, return NYT articles based on keywords
+        # Else, return a helper callback
+        nyt_query_string = self.extract_keywords(message_text)
+        if nyt_query_string is not None:
+            nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
+            template_elements = self.make_nyt_response_templates(nyt_response)
+            if len(template_elements) > 0:
+                response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
+                response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+                return response
+        else:
+            response = self.send_cannot_compute_helper_callback(recipient_id)
+            return response
 
-        # if api_ai_parsed_message.response_text is not None:
-            # response = self.BOT.send_text_message(recipient_id, api_ai_parsed_message.response_text)
-            # return response
+    def extract_keywords(self, message_text):
+        """
+            params:
+                message_text: str or unicode
 
-        # Wit.ai and Rive couldn't compute a valid response, so return a helper callback
-        response = self.send_cannot_compute_helper_callback(recipient_id)
-        return response
+            returns:
+                returns: str or None, if no keywords extracted we return None
+
+            1. Strip conjunctions
+            2. Only accept queries with length <= 5 excluding CC
+            3. Only accept POS tags in POS_to_accepts
+
+            To do:
+                - test with emojis, REMOVE emojis
+                - add emoji dictionary
+
+        """
+
+        keywords = []
+        POS_to_accept = ['VBG', 'NN', 'NNP', 'NNS', 'JJ', 'CC', 'DT']
+        num_words_thresh = 5
+
+        # Remove emojis)
+        message_text = [word for word in message_text.split() if word not in self.emojis.keys()]
+        message_text = ' '.join(message_text)
+
+        parsed = TextBlob(message_text).tags
+        for p in parsed:
+            if p[1] in POS_to_accept:
+                if p[1] != 'CC':
+                    # if any POS tags are in POS_to_accept and not a CC, then append it to the keywords
+                    keywords.append(p[0])
+            else:
+                # if any POS tags are not in POS_to_accept, then don't return any keywords
+                return None
+            if len(keywords) >= num_words_thresh:
+                return None
+
+        if len(keywords) > 0:
+            return ' '.join(keywords)
+
+        return None
+
+    def make_nyt_response_templates(self, nyt_response):
+        template_elements = []
+        for nyt in nyt_response:
+            if nyt.get("image_url"):
+                nyt_image_url = nyt["image_url"]
+            else:
+                nyt_image_url = None
+
+            template_elements.append(
+                self.BOT.create_generic_template_element(
+                    element_title=nyt["title"], element_item_url=nyt["web_url"],
+                    element_image_url=nyt_image_url, element_subtitle=nyt["abstract"]
+                )
+            )
+        return template_elements
 
     def send_cannot_compute_helper_callback(self, recipient_id):
         help_button = self.BOT.create_button(
@@ -310,7 +321,6 @@ class MessageProcessor(object):
 
             :rtype: response from requests.post() method
         """
-        print('debug is ' + str(self.CONFIG['DEBUG']))
         if self.CONFIG['DEBUG']:
             print(messages)
 

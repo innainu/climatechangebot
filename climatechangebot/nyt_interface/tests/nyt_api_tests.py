@@ -32,3 +32,13 @@ class TestNYTInterface(unittest.TestCase):
         articles = api.return_article_list('africa', num=4)
         self.assertIsInstance(articles, list)
         self.assertEqual(len(articles), 4)
+
+    def testReturnAllClimateChangeQuery(self):
+        api = NytimesApi(NYT_API_KEY)
+        articles = api.return_all("climate change and the recession")
+        self.assertNotEqual(len(articles['response']['docs']), 0)
+
+    def testReturnAllOtherQuery(self):
+        api = NytimesApi(NYT_API_KEY)
+        articles = api.return_all("dogs")
+        self.assertNotEqual(len(articles['response']['docs']), 0)

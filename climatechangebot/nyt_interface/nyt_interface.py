@@ -15,9 +15,16 @@ import random
 class NytimesApi(object):
     def __init__(self, key):
         self.api = articleAPI(key)
-        self.secret_keyword = 'climate change and '
+        self.secret_keyword = "climate change and "
 
     def return_all(self, query):
+        """
+            Keep query as is if climate change is in the query
+            If not, add climate change
+        """
+
+        if 'climate change' in query:
+            return self.api.search(q=query)
         return self.api.search(q=self.secret_keyword + query)
 
     def return_content(self, res):
@@ -28,7 +35,6 @@ class NytimesApi(object):
         article['source'] = res['source']
         article['web_url'] = res['web_url']
         if len(res['multimedia']) > 0:
-            print len(res['multimedia'])
             article['image_url'] = 'http://nytimes.com/' + res['multimedia'][0]['url']
         article['date'] = res['pub_date']
         return article
@@ -39,6 +45,8 @@ class NytimesApi(object):
         idx = 0
         for doc in results['response']['docs']:
             if doc['abstract'] is None:
+                doc['abstract'] = doc['lead_paragraph']
+            else:
                 continue
             articles.append(self.return_content(doc))
             idx += 1
@@ -46,5 +54,4 @@ class NytimesApi(object):
                 break
         if randomize:
             random.shuffle(articles)
-
         return articles
