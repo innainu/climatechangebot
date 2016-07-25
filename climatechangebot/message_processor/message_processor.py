@@ -156,7 +156,7 @@ class ExternalApiParser(object):
             # get user info from the db
             user = User()
             user_dict = self.MONGO.db.users.find_one({'recipient_id': recipient_id})
-            print(user_dict)
+
             if user_dict is None:
                 # get user information from Facebook
                 fb_user_profile_info = self.BOT.get_user_profile_info(recipient_id)
@@ -185,7 +185,7 @@ class ExternalApiParser(object):
         # print(rive_parsed_message)
 
         if rive_parsed_message != "UNDEFINED_RESPONSE":
-            print("HIT RIVE")
+            # print("HIT RIVE")
             response = self.BOT.send_text_message(recipient_id, rive_parsed_message)
             return response
 
@@ -198,6 +198,7 @@ class ExternalApiParser(object):
                 and wit_parsed_message.intent[1] > self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH \
                 and wit_parsed_message.has_at_least_one_entity():
 
+            # print("HIT WIT.AI")
             nyt_query_string = ""
 
             # take search query entitiy with highest confidence
@@ -218,7 +219,6 @@ class ExternalApiParser(object):
             if len(template_elements) > 0:
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
-                print("HIT WIT.AI")
                 return response
             else:
                 response = self.BOT.send_text_message(recipient_id, "Sorry I couldn't find articles with those search terms. Try something more general.")
@@ -226,30 +226,21 @@ class ExternalApiParser(object):
 
         elif wit_parsed_message.intent and wit_parsed_message.intent[0] == 'latest' \
                 and wit_parsed_message.intent[1] > self.WIT_SEARCH_QUERY_CONFIDENCE_THRESH:
-            #call return_trending_list function for intent = latest
-            nyt_response = self.NYT_API.return_trending_list()
-            template_elements = self.make_nyt_response_templates(nyt_response)
-            if len(template_elements) > 0:
-                response = self.BOT.send_text_message(recipient_id, "Here's the latest on climate change:")
-                response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
-                return response
 
-            # no trending articles were returned!
-            response = self.BOT.send_text_message(recipient_id, u"Sorry, couldn't find anything trending in climate change today. Please check back tomorrow! \U0001f30e")
+            response = self.send_trending_articles(recipient_id)
             return response
 
         # Wit.ai and Rive couldn't compute a valid response
         # If the user searches keywords, not complex sentences, return NYT articles based on keywords
         # Else, return a helper callback template
         nyt_query_string = self.extract_keywords(message_text)
-        print(nyt_query_string)
         if nyt_query_string is not None:
+            # print("HIT ENTITY EXTRACTOR")
             nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
             template_elements = self.make_nyt_response_templates(nyt_response)
             if len(template_elements) > 0:
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
-                print("HIT ENTITY EXTRACTOR")
                 return response
             else:
                 response = self.BOT.send_text_message(recipient_id, "Sorry I couldn't find articles with those search terms. Try something more general.")
@@ -320,6 +311,19 @@ class ExternalApiParser(object):
                 )
             )
         return template_elements
+
+    def send_trending_articles(self, recipient_id):
+        #call return_trending_list function for intent = latest
+        nyt_response = self.NYT_API.return_trending_list()
+        template_elements = self.make_nyt_response_templates(nyt_response)
+        if len(template_elements) > 0:
+            response = self.BOT.send_text_message(recipient_id, "Here's the latest on climate change:")
+            response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+            return response
+
+        # no trending articles were returned!
+        response = self.BOT.send_text_message(recipient_id, u"Sorry, couldn't find anything trending in climate change today. Please check back tomorrow! \U0001f30e")
+        return response
 
     def send_cannot_compute_helper_callback(self, recipient_id):
         help_button = self.BOT.create_button(
@@ -494,7 +498,7 @@ class MessageProcessor(object):
         elif postback_payload == "WELCOME_MESSAGE_POSTBACK":
             response = self.EXTERNAL_API_PARSER.send_welcome_message(recipient_id)
         elif postback_payload == "TRENDING_POSTBACK":
-            pass
+            response = self.EXTERNAL_API_PARSER.send_trending_articles(recipient_id)
 
         return response
 

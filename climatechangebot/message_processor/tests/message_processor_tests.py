@@ -89,6 +89,11 @@ class TestMessageProcessor(unittest.TestCase):
 
         mongo.db.users.remove({'recipient_id': recipient_id})
 
+    def testParsePostbackTrending(self):
+        message_was_delivered = {u'entry': [{u'messaging': [{u'timestamp': 1469344026838, u'postback': {u'payload': u'TRENDING_POSTBACK'}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': recipient_id, u'time': 1469344026838}], u'object': u'page'}
+        response = msgproc.parse_messages(message_was_delivered)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestExternalWitApiParser(unittest.TestCase):
 
