@@ -11,7 +11,7 @@
 + (@greeting) <bot name>
 - Hey, what can I do for you today?
 
-+ (@whatsup) [<bot name>|@malenoun|@femalenoun]
++ [@greeting] [@whatsup] [<bot name>|@malenoun|@femalenoun]
 - Hey, why don't you search some articles about climate change. Type "help" if you ever need any help.{weight=10}
 - Nothing much. Try asking me "show me articles about climate change" to stay informed.{weight=5}
 - Just thinking about the depleting ozone layer.{weight=1}
@@ -60,6 +60,9 @@
 + @thanks for *
 - My pleasure, will help you with {person}<star>{/person} whenever.
 
++ @thanks *
+- No need to thank me.
+
 + i do not care
 - Climate change is affecting us all, so maybe you should.
 - You really should...
@@ -70,11 +73,12 @@
 - OK so...
 - Ok so what would you like to read about now?
 
-+ (@ok) stop
-- Sorry, I'll stop hopefully. Let's talk about climate change.
++ (@ok) (stop|jeez|jee|sheesh)
+- Sorry, I'll stop. Now let's talk about climate change!
+
 
 + stop
-- Sorry, I'll stop hopefully. Let's talk about climate change.
+- Sorry, I'll stop hopefully. Let's talk more about climate change?
 
 + oh is it
 - Yup!
@@ -107,6 +111,12 @@
 - I knew it!
 - 😬
 - 😅
+
++ it is ok
+- Cool!
+
++ [*] rude [*]
+- Sorry about that.
 
 // Apologies
 + [*] (sorry|apologize|apology) [*]

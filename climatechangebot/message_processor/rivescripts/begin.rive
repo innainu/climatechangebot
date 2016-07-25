@@ -173,9 +173,9 @@
 ! person i       = you
 
 // Set arrays
-! array malenoun   = male guy boy dude boi man men gentleman gentlemen
+! array malenoun   = male guy boy dude boi man men gentleman gentlemen dog bro
 ! array femalenoun = female girl chick woman women lady babe mama mamasita
-! array mennoun    = males guys boys dudes bois men gentlemen
+! array mennoun    = males guys boys dudes bois men gentlemen bros broskies
 ! array womennoun  = females girls chicks women ladies babes
 
 // A lot of colors!
@@ -194,9 +194,9 @@
 ^ hey yo
 ! array whatsup = wassup sup whatsup wazzup wazup
 ^ what is up|what is going on|how is it going|how are you|how is it going
-^ how you doing|how are things
+^ how you doing|how are things|how are you doing
 ! array cursewords = fuck shit asshole shit damn bitch stupid shitty shitster suck
-^ shut up|fucker|dick|ass|pussy|boobs|penis|suicide|loser
+^ shut up|fucker|dick|ass|pussy|boobs|penis|suicide|loser|fucking
 ! array ok = ok|ok so|so|k|kk
 ! array laughing = lol haha rofl lmao lolz hahaha ha laughing
 ! array thanks = thanks tu danke arigatou merci

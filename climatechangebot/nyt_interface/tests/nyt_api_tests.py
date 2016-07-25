@@ -30,9 +30,9 @@ class TestNYTInterface(unittest.TestCase):
 
     def testReturnArticleListMultiple(self):
         api = NytimesApi(NYT_API_KEY)
-        articles = api.return_article_list('africa', num=2)
+        articles = api.return_article_list('sea', num=5)
         self.assertIsInstance(articles, list)
-        self.assertEqual(len(articles), 2)
+        self.assertEqual(len(articles), 5)
 
     def testReturnAllClimateChangeQuery(self):
         api = NytimesApi(NYT_API_KEY)

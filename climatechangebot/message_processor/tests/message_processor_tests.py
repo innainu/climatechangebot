@@ -42,6 +42,12 @@ recipient_id = config.get('SECRET', 'fb_test_recipient_id')
 
 class TestMessageProcessor(unittest.TestCase):
 
+    def testParseMessageTextRive(self):
+
+        message_with_text = {u'entry': [{u'messaging': [{u'timestamp': 1467598100136, u'message': {u'text': u'hey', u'mid': u'mid.1467598100129:66fdbf342d4b345', u'seq': 706}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467598100153}], u'object': u'page'}
+        response = msgproc.parse_messages(message_with_text)
+        self.assertEqual(response.status_code, 200)
+
     def testParseMessageAttachment(self):
         # Test attachment with unknown sticker
         message_with_attachment = {u'entry': [{u'messaging': [{u'timestamp': 1467596969812, u'message': {u'attachments': [{u'type': u'image', u'payload': {u'url': u'https://scontent.xx.fbcdn.net/t39.1997-6/p100x100/851586_126362014215262_1346191341_n.png?_nc_ad=z-m'}}], u'mid': u'mid.1467596969805:397b860aa7858f1994', u'seq': 699, u'sticker_id': 126362007548596}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467596969833}], u'object': u'page'}
@@ -56,11 +62,6 @@ class TestMessageProcessor(unittest.TestCase):
         # Test attachment without sticker
         message_with_attachment = {u'entry': [{u'messaging': [{u'timestamp': 1467596969812, u'message': {u'attachments': [{u'type': u'image', u'payload': {u'url': u'https://scontent.xx.fbcdn.net/t39.1997-6/p100x100/851586_126362014215262_1346191341_n.png?_nc_ad=z-m'}}], u'mid': u'mid.1467596969805:397b860aa7858f1996', u'seq': 699}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467596969833}], u'object': u'page'}
         response = msgproc.parse_messages(message_with_attachment)
-        self.assertEqual(response.status_code, 200)
-
-    def testParseMessageTextRive(self):
-        message_with_text = {u'entry': [{u'messaging': [{u'timestamp': 1467598100136, u'message': {u'text': u'hey dude', u'mid': u'mid.1467598100129:66fdbf3421d1d4b345', u'seq': 706}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': u'852964301474501', u'time': 1467598100153}], u'object': u'page'}
-        response = msgproc.parse_messages(message_with_text)
         self.assertEqual(response.status_code, 200)
 
     def testParsePostback(self):
@@ -85,6 +86,8 @@ class TestMessageProcessor(unittest.TestCase):
         message_was_delivered = {u'entry': [{u'messaging': [{u'timestamp': 1469344026838, u'postback': {u'payload': u'WELCOME_MESSAGE_POSTBACK'}, u'recipient': {u'id': recipient_id}, u'sender': {u'id': u'986080158173463'}}], u'id': recipient_id, u'time': 1469344026838}], u'object': u'page'}
         response = msgproc.parse_messages(message_was_delivered)
         self.assertEqual(response.status_code, 200)
+
+        mongo.db.users.remove({'recipient_id': recipient_id})
 
 
 class TestExternalWitApiParser(unittest.TestCase):
