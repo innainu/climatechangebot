@@ -9,12 +9,18 @@ help_button_title = (
     u" climate change too, click HELP below!"
 )
 
-help_postback_text = (
-    u"I'm still learning, but what I can do now is: \n \u2022 Search for an article "
-    u"when you type something like 'show me articles about fish' \n "
-    u"\u2022 Have a simple conversation with you; for example ask me: 'what is my name?' \n"
-    u"That's all folks! \U0001f389"
-)
+help_postback_text = [
+    (
+        u"I'm still learning, but what I can do now is: \n \u2022 Search for an article "
+        u"when you type something like 'show me articles about fish'. I can also search on keywords "
+        u"like if you type 'ice caps' \n"
+    ),
+    (
+        u"\u2022 Have a simple conversation with you; for example ask me: 'what is my name?' \n"
+        u"\u2022 I can give you the latest scoop on climate change, just type 'trending' or 'latest' \n"
+        u"That's all folks! \U0001f389"
+    )
+]
 
 
 # Welcome messages for when a user starts chatting with climatechangebot

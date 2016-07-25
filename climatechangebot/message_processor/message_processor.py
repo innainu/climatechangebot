@@ -494,7 +494,8 @@ class MessageProcessor(object):
         response = None
 
         if postback_payload == "HELP_POSTBACK":
-            response = self.BOT.send_text_message(recipient_id, bot_response_text.help_postback_text)
+            for help_text in bot_response_text.help_postback_text:
+                response = self.BOT.send_text_message(recipient_id, help_text)
         elif postback_payload == "WELCOME_MESSAGE_POSTBACK":
             response = self.EXTERNAL_API_PARSER.send_welcome_message(recipient_id)
         elif postback_payload == "TRENDING_POSTBACK":
