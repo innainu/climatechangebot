@@ -39,14 +39,14 @@ mongo.db.users.find_one()
 - Create SSL: https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-14-04
 - Run Ansible Playbook
     - `sudo ansible-playbook -c local ansible/prod.yml`
+- `python -m textblob.download_corpora`
 - Run nosetests
 - Logs
     - `tail -f /var/log/gunicorn/gunicorn-error.log`
 
-
 ## To do:
 
 1. Continuous rive improvement
-2. Notify about errors on prod
+2. Email notification about errors on prod
 3. Code refactor
 4. Install better mongo Ansible role: https://galaxy.ansible.com/greendayonfire/mongodb/

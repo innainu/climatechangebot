@@ -156,7 +156,7 @@ class ExternalApiParser(object):
             # get user info from the db
             user = User()
             user_dict = self.MONGO.db.users.find_one({'recipient_id': recipient_id})
-
+            print(user_dict)
             if user_dict is None:
                 # get user information from Facebook
                 fb_user_profile_info = self.BOT.get_user_profile_info(recipient_id)
@@ -178,10 +178,14 @@ class ExternalApiParser(object):
 
             # get all the user vars back out of the RIVE to insert into DB
             new_user_vars = self.RIVE.get_uservars(recipient_id)
+            # print(new_user_vars)
             user.update_user_vars(new_user_vars)
             self.MONGO.db.users.update({'recipient_id': recipient_id}, user.user_dict)
 
+        # print(rive_parsed_message)
+
         if rive_parsed_message != "UNDEFINED_RESPONSE":
+            print("HIT RIVE")
             response = self.BOT.send_text_message(recipient_id, rive_parsed_message)
             return response
 
@@ -195,16 +199,18 @@ class ExternalApiParser(object):
                 and wit_parsed_message.has_at_least_one_entity():
 
             nyt_query_string = ""
-            # take entitiy with highest confidence
+
+            # take search query entitiy with highest confidence
             if len(wit_parsed_message.search_queries) > 0:
                 query = sorted(wit_parsed_message.search_queries, key=lambda x: x[1], reverse=True)[0]
                 nyt_query_string += query[0]
 
+            # get location entities
             if len(wit_parsed_message.locations) > 0:
                 location = sorted(wit_parsed_message.locations, key=lambda x: x[1], reverse=True)[0]
                 nyt_query_string += " in " + location[0]
 
-            # Get NYT articles to send to user
+            # query for NYT articles to send to user
             nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
             template_elements = self.make_nyt_response_templates(nyt_response)
 
@@ -212,22 +218,31 @@ class ExternalApiParser(object):
             if len(template_elements) > 0:
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+                print("HIT WIT.AI")
+                return response
+            else:
+                response = self.BOT.send_text_message(recipient_id, "Sorry I couldn't find articles with those search terms. Try something more general.")
                 return response
 
         # Wit.ai and Rive couldn't compute a valid response
         # If the user searches keywords, not complex sentences, return NYT articles based on keywords
-        # Else, return a helper callback
+        # Else, return a helper callback template
         nyt_query_string = self.extract_keywords(message_text)
+        print(nyt_query_string)
         if nyt_query_string is not None:
             nyt_response = self.NYT_API.return_article_list(nyt_query_string, num=num_articles)
             template_elements = self.make_nyt_response_templates(nyt_response)
             if len(template_elements) > 0:
                 response = self.BOT.send_text_message(recipient_id, "Here are some articles for you:")
                 response = self.BOT.send_generic_payload_message(recipient_id, elements=template_elements)
+                print("HIT ENTITY EXTRACTOR")
                 return response
-        else:
-            response = self.send_cannot_compute_helper_callback(recipient_id)
-            return response
+            else:
+                response = self.BOT.send_text_message(recipient_id, "Sorry I couldn't find articles with those search terms. Try something more general.")
+                return response
+
+        response = self.send_cannot_compute_helper_callback(recipient_id)
+        return response
 
     def extract_keywords(self, message_text):
         """
@@ -279,6 +294,10 @@ class ExternalApiParser(object):
                 nyt_image_url = nyt["image_url"]
             else:
                 nyt_image_url = None
+
+            if nyt["abstract"] is None:
+                # Facebook requires that the subtitle is not None
+                nyt["abstract"] = nyt["title"]
 
             template_elements.append(
                 self.BOT.create_generic_template_element(
