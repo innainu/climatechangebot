@@ -11,6 +11,10 @@
 + (@greeting) <bot name>
 - Hey, what can I do for you today?
 
++ (@greeting) *
+- Hey there <get first_name>!
+- Hey!
+
 + [@greeting] [@whatsup] [<bot name>|@malenoun|@femalenoun]
 - Hey, why don't you search some articles about climate change. Type "help" if you ever need any help.{weight=10}
 - Nothing much. Try asking me "show me articles about climate change" to stay informed.{weight=5}
