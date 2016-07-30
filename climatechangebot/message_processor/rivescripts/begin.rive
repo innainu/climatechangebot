@@ -122,6 +122,8 @@
 ! sub g2g       = got to go
 ! sub lyl       = love you lots
 ! sub shutup    = shut up
+! sub np        = no problem
+! sub prob      = problem
 ! sub idc       = i do not care
 ! sub gf        = girlfriend
 ! sub g/f       = girlfriend
@@ -171,6 +173,7 @@
 ! person your    = my
 ! person you     = I
 ! person i       = you
+! person me      = you
 
 // Set arrays
 ! array malenoun   = male guy boy dude boi man men gentleman gentlemen dog bro
@@ -195,8 +198,9 @@
 ! array whatsup = wassup sup whatsup wazzup wazup
 ^ what is up|what is going on|how is it going|how are you|how is it going
 ^ how you doing|how are things|how are you doing|what are you doing|what are you up to
+^ what is good|how you doin
 ! array cursewords = fuck shit asshole shit damn bitch stupid shitty shitster suck
-^ shut up|fucker|dick|ass|pussy|boobs|penis|suicide|loser|fucking
+^ shut up|fucker|dick|ass|pussy|boobs|penis|suicide|loser|fucking|dumb
 ! array ok = ok|ok so|so|k|kk
 ! array laughing = lol haha rofl lmao lolz hahaha ha laughing
 ! array thanks = thanks tu danke arigatou merci
@@ -209,7 +213,7 @@
 ^ doing well|good
 ! array sadmoods = sad crying terrible bad
 ! array notreal = fake bogus
-^ not real|a sham|a conspiracy|made up|not true
+^ not real|a sham|a conspiracy|made up|not true|a hoax
 ! array real = real|true|happening|occuring|affecting me|the real deal
 ! array likeverbs = like|love|adore|liked|loved|enjoy|enjoyed|heart
 ! array hateverbs = hate|dislike|not like|not love|not adore|hated|disliked|not liked

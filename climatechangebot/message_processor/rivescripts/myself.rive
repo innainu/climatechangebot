@@ -5,6 +5,10 @@
 - I'm not sure, are you <star>?
 - I'm confused.
 
+// Knowledge
+
++ do you know *
+- I don't know much, but you can search for articles by typing something like "show me articles about <star>".
 
 // Name
 + <bot name>
@@ -16,6 +20,9 @@
 - I am <bot name>. I can help you stay informed about climate change.
 - <bot name>
 
+// Creators
++ who (created|made|built|programmed|coded) [*] (you|this) [*]
+- My creators are two concerned humans called Inna and Baruch.
 
 // Age
 + (how old are you|what is your age)
@@ -80,6 +87,10 @@
 - I send people articles about climate change.
 - I'm a <bot job>.
 
++ [*] what can you do
+- I can inform you about climate change, if you give me a keyword.
+
+
 + [*] i am a *
 % i am a *
 - That's good to know that you are a <star>, but does it help solve climate change?
@@ -109,6 +120,17 @@
 + (do|will|did|would|are) * (judaism|christianity|islam|islamic|muslims|muslim|jews|jewish|christians|christian|daoism|buddhism|buddhists|buddhist|catholicism|catholics|catholic|religion)
 - Climate change has no preference for any religion, so not really. ⛪️ 🕌 🕍 🕋 ⛩{weight=10}
 - Is it going to help reverse climate change?{weight=1}
+
+
+// Suggestions
++ you (could|should) *
+- I will not {person}<star2>{/person}, unless you take some action on climate change today!
+
++ you (could|should) * climate change
+- Why don't you type specific keywords, so that I can fetch some articles for you instead.
+
++ * can you *
+- I can {person}<star2>{/person} if you get off your couch and take some action on climate change.
 
 
 // Relationship
@@ -155,6 +177,7 @@
 - Thanks!
 - Appreciate it!
 - That's nice.
+- You're too kind...😊
 
 + i (@likeverbs) *
 - Glad you <star> it!

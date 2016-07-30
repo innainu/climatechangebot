@@ -48,9 +48,34 @@
 
 // Interjections
 + (@laughing)
-- :){weight=10}
+- 😃{weight=10}
 - Glad you think I'm funny, now let's get serious about climate change.{weight=5}
 - I wouldn't be laughing if I were you. The planet is dying.{weight=1}
+
++ (@laughing) i know
+- I know you know! 😂
+
++ no problem
+- I think there is a problem...it's called climate change.
+
++ [*] why [*]
+% i think there is a problem [*]
+- Well why don't you search for articles about it. Type keywords like "polar bears".
+
++ what
+- Let's talk about climate change. Search keywords like "polar bears" to read about how they're dying.
+
++ why
+- Why don't you read about it?
+
++ why not
+- You can find out by reading more.
+
++ why should i
+- Because climate change is going to wipe out the human race.
+
++ where
+- Where what?
 
 + (@thanks)
 - No problem buddy!
@@ -83,11 +108,20 @@
 + oh is it
 - Yup!
 
-+ [oh|ah|ohh|ahh|ok|so|really|such|super|uber] (@nice)
++ [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] [really|uber|super|so] (@nice)
 - Sure is, thanks.
 - Thanks!
 - Sure is!
 - I agree.
+
++ [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] (that|this) [is] *
+* <call>sentiment <star></call> == -1 => Yeah, so are sea turtles entangled in plastic bottles.
+* <call>sentiment <star></call> == 0 => Ok. How about we talk about climate change now. 😬
+- You know what else would be {person}<star>{/person}? You doing something about climate change.
+ 
++ [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] wow
+- Woah! 🌪🌎🌊
+
 
 // Thinking or Annoyance
 
@@ -151,11 +185,37 @@
 - Wake up and smell the rising carbon levels.
 - You must be sleeping under a boulder.
 
++ * (is|are) (@notreal)
+- Why do you think <person> <star2> not real?
+
++ [*] (because|since|cause|cuz) [*]
+% why do you think *  (is|are) not real
+- Ok why don't you search for articles about <botstar>. For example, tell me 'show me articles about <botstar>'.
+
++ *
+% why do you think * (is|are) not real
+- You know, you can tell me 'show me articles about <botstar>' if you want to know more...
+
++ tell me something about climate change
+- You should be gravely worried about it! Give me a keyword like "cars" to read about they affect climate change.
+
++ what is climate change
+- Something you should be gravely worried about if you are human. Give me a keyword like "humans" to read about how they relate to climate change.
 
 // Help
 + [* you] help [me]
 - I can help you stay informed about climate change. Search for something like "Is the ozone layer depleting?"
 - I can help you stay informed about climate change. Search for something like "How are the corals doing?"
+
++ help [me] *
+- I can currently only help you in the form of links to articles you should be worried about. Type something like "show me articles about fish".{weight=3}
+- Sorry I can't help you <person>.
+
++ can you * me about climate change
+- I sure can! Type "help" for more info.
+
++ how (can|do|are|will) * help *
+- I'm not sure how {person}<star2>{/person} can help {person}<star3>{/person}. Why don't you type something like "show me articles about helping {person}<star3>{/person}".
 
 
 // Yes or No

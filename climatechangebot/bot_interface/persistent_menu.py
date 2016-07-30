@@ -36,13 +36,13 @@ def create_persistent_menu():
         "call_to_actions": [
             {
                 "type": "postback",
-                "title": "Help",
-                "payload": "HELP_POSTBACK"
+                "title": "Trending",
+                "payload": "TRENDING_POSTBACK"
             },
             {
                 "type": "postback",
-                "title": "Trending",
-                "payload": "TRENDING_POSTBACK"
+                "title": "Help",
+                "payload": "HELP_POSTBACK"
             }
             # {
             #     "type": "web_url",

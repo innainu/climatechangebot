@@ -15,7 +15,7 @@ class Config(object):
     FB_WEBHOOK_URL = 'this-is-in-local-config'
 
     NYT_KEY = 'this-is-in-local-config'
-    NYT_NUM_ARTICLES_RETURNED = 3
+    NYT_NUM_ARTICLES_RETURNED = 4
 
     WIT_KEY = 'this-is-in-local-config'
     API_AI_KEY = 'this-is-in-local-config'
