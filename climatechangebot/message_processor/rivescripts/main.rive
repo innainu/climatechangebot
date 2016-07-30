@@ -118,6 +118,9 @@
 - Sure is!
 - I agree.
 
++ [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow]
+- Mhm.
+
 + [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] (that|this) [is] *
 * <call>sentiment <star></call> == -1 => Yeah, so are sea turtles entangled in plastic bottles.
 * <call>sentiment <star></call> == 0 => Ok. How about we talk about climate change now. 😬
