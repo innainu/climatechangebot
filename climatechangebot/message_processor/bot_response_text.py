@@ -3,11 +3,22 @@
 
 """
 
-help_button_title = (
-    u"Sorry I'm too busy worrying about climate change \U0001f30e, "
-    u"I missed what you were saying. If you need help worrying about"
-    u" climate change too, click HELP below!"
-)
+help_button_title = [
+    (
+        u"Sorry I'm too busy worrying about climate change \U0001f30e, "
+        u"I missed what you were saying. If you need help worrying about"
+        u" climate change too, type 'help'."
+    ),
+    (
+        u"Sorry didn't catch that! \U0001f601 Type 'help', or search for something like"
+        u" 'crabs' or 'polar bears'!"
+    ),
+    (
+        u"Sorry didn't get that! \U0001f616 Type 'help', or search for something like"
+        u" 'sea levels' or 'melting glaciers'!"
+    )
+]
+
 
 help_postback_text = [
     (

@@ -326,16 +326,20 @@ class ExternalApiParser(object):
         return response
 
     def send_cannot_compute_helper_callback(self, recipient_id):
-        help_button = self.BOT.create_button(
-            button_type=ButtonType.POSTBACK.value, title="Help",
-            payload="HELP_POSTBACK"
-        )
+        # help_button = self.BOT.create_button(
+        #     button_type=ButtonType.POSTBACK.value, title="Help",
+        #     payload="HELP_POSTBACK"
+        # )
 
-        response = self.BOT.send_button_payload_message(
-            recipient_id,
-            button_title=bot_response_text.help_button_title,
-            buttons=[help_button]
-        )
+        # response = self.BOT.send_button_payload_message(
+        #     recipient_id,
+        #     button_title=bot_response_text.help_button_title,
+        #     buttons=[help_button]
+        # )
+
+        max_int = len(bot_response_text.help_button_title) - 1
+        idx = random.randint(0, max_int)
+        response = self.BOT.send_text_message(recipient_id, bot_response_text.help_button_title[idx])
 
         return response
 
