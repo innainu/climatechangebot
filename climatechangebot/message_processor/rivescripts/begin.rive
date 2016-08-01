@@ -194,7 +194,7 @@
 ! array no         = no nah nope nay never
 ^ not really|not
 ! array greeting   = hey hello yo holla howdy hi heyo heyy
-^ hey yo|hola
+^ hey yo|hola|bonjour
 ! array whatsup = wassup sup whatsup wazzup wazup
 ^ what is up|what is going on|how is it going|how are you|how is it going
 ^ how you doing|how are things|how are you doing|what are you doing|what are you up to

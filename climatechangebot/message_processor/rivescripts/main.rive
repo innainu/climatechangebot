@@ -81,7 +81,7 @@
 + where
 - Where what?
 
-+ (@thanks)
++ [@ok] (@thanks)
 - No problem buddy!
 - No problem my friend.
 - Now try thanking the earth by recycling your plastic containers.
@@ -117,11 +117,17 @@
 + oh is it
 - Yup!
 
-+ [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] [really|uber|super|so] (@nice)
++ [@yes] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] [really|uber|super|so] (@nice)
 - Sure is, thanks.
 - Thanks!
 - Sure is!
 - I agree.
+
++ @no [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow] [really|uber|super|so] (@nice)
+- Um ok, apologies.
+- Right.
+- Yeah ok.
+- Sorry about that.
 
 + [@yes|@no] [oh|ah|ohh|ahh|ok|so|really|such|super|uber|wow|oh wow]
 - Mhm.
@@ -221,6 +227,12 @@
 + what is climate change
 - Something you should be gravely worried about if you are human. Give me a keyword like "humans" to read about how they relate to climate change.
 
++ does the climate change
+- YES!!
+
++ what is * with our climate
+- Literally everything...🌊🌊🌊
+
 // Help
 + [* you] help [me]
 - I can help you stay informed about climate change. Search for something like "Is the ozone layer depleting?"
@@ -233,9 +245,14 @@
 + can you * me about climate change
 - I sure can! Type "help" for more info.
 
-+ how (can|do|are|will) * help *
-- I'm not sure how {person}<star2>{/person} can help {person}<star3>{/person}. Why don't you type something like "show me articles about helping {person}<star3>{/person}".
++ [*] (can|do|are|will) * (help|save|rescue) *
+- I'm not sure how {person}<star2>{/person} can help {person}<star4>{/person}. My creator hasn't taught me. Why don't you type something like "show me articles about helping {person}<star4>{/person}".
 
++ [*] (can|do|are|will) * (prevent|stop|avoid) *
+- I'm not sure how {person}<star2>{/person} can stop {person}<star4>{/person}. My creator hasn't taught me. Why don't you type something like "show me articles about stopping {person}<star4>{/person}".
+
++ climate change *
+- Are you sure it <star>? You should look it up!
 
 // Yes or No
 + @no @thanks
