@@ -6,3 +6,4 @@
 local.cfg
 local_test_config.cfg
 .DS_Store
+env-local

@@ -304,10 +304,13 @@ class ExternalApiParser(object):
                 # Facebook requires that the subtitle is not None
                 nyt["abstract"] = nyt["title"]
 
+            share_button = self.BOT.create_button(button_type=ButtonType.SHARE.value)
+
             template_elements.append(
                 self.BOT.create_generic_template_element(
                     element_title=nyt["title"], element_item_url=nyt["web_url"],
-                    element_image_url=nyt_image_url, element_subtitle=nyt["abstract"]
+                    element_image_url=nyt_image_url, element_subtitle=nyt["abstract"],
+                    element_buttons=[share_button]
                 )
             )
         return template_elements

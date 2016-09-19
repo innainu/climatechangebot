@@ -30,6 +30,7 @@ class AttachmentType(Enum):
 class ButtonType(Enum):
     WEBURL = "web_url"
     POSTBACK = "postback"
+    SHARE = "element_share"
 
 
 class SenderActions(Enum):
@@ -169,6 +170,10 @@ class BotInterface(object):
                 "payload": payload
             }
             return button_dict
+        elif button_type == ButtonType.SHARE.value:
+            button_dict = {
+                "type": ButtonType.SHARE.value
+            }
 
         warnings.warn("button_type of %s does not exist" % button_type, UserWarning)
         return button_dict
