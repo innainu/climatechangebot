@@ -51,17 +51,18 @@ class NytimesApi(object):
     def clean_response(self, results, num, randomize=False):
         articles = []
         idx = 0
-        for doc in results['response']['docs']:
-            if doc['abstract'] is None:
-                doc['abstract'] = doc['lead_paragraph']
-            else:
-                continue
-            articles.append(self.return_content(doc))
-            idx += 1
-            if idx == num:
-                break
-        if randomize:
-            random.shuffle(articles)
+        if 'response' in results:
+            for doc in results['response']['docs']:
+                if doc['abstract'] is None:
+                    doc['abstract'] = doc['lead_paragraph']
+                else:
+                    continue
+                articles.append(self.return_content(doc))
+                idx += 1
+                if idx == num:
+                    break
+            if randomize:
+                random.shuffle(articles)
         return articles
 
     def return_article_list(self, query, num=1, randomize=False):
