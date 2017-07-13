@@ -1,11 +1,16 @@
 import facebook
-from nyt_interface.nyt_interface import NytimesApi
 import ConfigParser
+import os
+
+from nyt_interface.nyt_interface import NytimesApi
 
 
 def post_latest():
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(cur_dir, "local_test_config.cfg")
+
     config = ConfigParser.ConfigParser()
-    config.read("local_test_config.cfg")
+    config.read(config_path)
     NYT_API_KEY = config.get('NYTIMES', 'nyt_key')
     FB_ACCESS_TOKEN = config.get('SECRET', 'INNA_ACCESS_TOKEN')
 
