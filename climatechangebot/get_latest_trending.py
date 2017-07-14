@@ -17,7 +17,7 @@ def post_latest():
     nyt_api = NytimesApi(NYT_API_KEY)
     trending_articles = nyt_api.return_trending_list()
     trending_articles = sorted(trending_articles, key=lambda x: x['date'])
-    trending_article = trending_articles[-1]
+    trending_article = trending_articles[0]
 
     graph = facebook.GraphAPI(FB_ACCESS_TOKEN)
     message = 'This is an automated message from m.me/climatechangebot. Check out this article about climate change.'
