@@ -24,7 +24,7 @@ def post_latest():
     graph.put_object(
         "me", "feed",
         message=message, link=trending_article['web_url'],
-        picture=trending_article['image_url'])
+        picture=trending_article.get('image_url', None))
 
 
 if __name__ == '__main__':
