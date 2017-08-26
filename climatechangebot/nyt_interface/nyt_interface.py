@@ -38,35 +38,50 @@ class NytimesApi(object):
 
     def return_content(self, res):
         article = {}
-        article['title'] = res['headline']['main']
-        article['abstract'] = res['abstract']
-        article['_id'] = res['_id']
-        article['source'] = res['source']
-        article['web_url'] = res['web_url']
-        if len(res['multimedia']) > 0:
+        # print res
+        if res.get('headline'):
+            article['title'] = res['headline'].get('main')
+        else:
+            #  Don't include article if there is no title
+            return None
+        if res.get('abstract'):
+            article['abstract'] = res.get('abstract')
+        else:
+            if res.get('lead_paragraph'):
+                article['abstract'] = res.get('lead_paragraph')
+            elif res.get('snippet'):
+                article['abstract'] = res.get('snippet')
+            else:
+                #  Don't include article if abstract, lead_paragraph or snippet don't exist
+                return None
+        article['_id'] = res.get('_id')
+        article['source'] = res.get('source')
+        article['web_url'] = res.get('web_url')
+        if len(res.get('multimedia')) > 0:
             article['image_url'] = 'http://nytimes.com/' + res['multimedia'][0]['url']
-        article['date'] = res['pub_date']
+        article['date'] = res.get('pub_date')
         return article
 
     def clean_response(self, results, num, randomize=False):
         articles = []
-        idx = 0
-        if 'response' in results:
-            for doc in results['response']['docs']:
-                if doc['abstract'] is None:
-                    doc['abstract'] = doc['lead_paragraph']
-                else:
+        count = 0
+        if results.get('response'):
+            for doc in results['response'].get('docs'):
+                article_content = self.return_content(doc)
+                if article_content is None:
                     continue
-                articles.append(self.return_content(doc))
-                idx += 1
-                if idx == num:
+                articles.append(article_content)
+                count += 1
+                if count == num:
                     break
             if randomize:
                 random.shuffle(articles)
+
         return articles
 
     def return_article_list(self, query, num=1, randomize=False):
         results = self.return_all(query)
+        print results
         articles = self.clean_response(results, num, randomize)
         return articles
 
